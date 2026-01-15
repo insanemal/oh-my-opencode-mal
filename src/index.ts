@@ -1,7 +1,13 @@
 import type { Plugin } from "@opencode-ai/plugin";
 import { getAgentConfigs } from "./agents";
 import { BackgroundTaskManager } from "./features";
-import { createBackgroundTools } from "./tools";
+import {
+  createBackgroundTools,
+  lsp_goto_definition,
+  lsp_find_references,
+  lsp_diagnostics,
+  lsp_rename,
+} from "./tools";
 import { loadPluginConfig } from "./config";
 import { createBuiltinMcps } from "./mcp";
 
@@ -17,7 +23,13 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
 
     agent: agents,
 
-    tool: backgroundTools,
+    tool: {
+      ...backgroundTools,
+      lsp_goto_definition,
+      lsp_find_references,
+      lsp_diagnostics,
+      lsp_rename,
+    },
 
     mcp: mcps,
 
