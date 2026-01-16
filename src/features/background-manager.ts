@@ -1,5 +1,7 @@
 import type { PluginInput } from "@opencode-ai/plugin";
 import { POLL_INTERVAL_BACKGROUND_MS, POLL_INTERVAL_SLOW_MS } from "../config";
+import { spawnTmuxPane, closeTmuxPane, type TmuxConfig } from "../utils/tmux";
+import { log } from "../shared/logger";
 
 type OpencodeClient = PluginInput["client"];
 
@@ -13,6 +15,7 @@ export interface BackgroundTask {
   error?: string;
   startedAt: Date;
   completedAt?: Date;
+  paneId?: string; // tmux pane ID for auto-close
 }
 
 export interface LaunchOptions {
@@ -32,10 +35,14 @@ export class BackgroundTaskManager {
   private client: OpencodeClient;
   private directory: string;
   private pollInterval?: ReturnType<typeof setInterval>;
+  private tmuxConfig: TmuxConfig;
+  private serverUrl: string;
 
-  constructor(ctx: PluginInput) {
+  constructor(ctx: PluginInput, tmuxConfig?: TmuxConfig) {
     this.client = ctx.client;
     this.directory = ctx.directory;
+    this.tmuxConfig = tmuxConfig ?? { enabled: false, split_direction: "horizontal", pane_size: 30 };
+    this.serverUrl = ctx.serverUrl?.toString() ?? "http://localhost:4096";
   }
 
   async launch(opts: LaunchOptions): Promise<BackgroundTask> {
@@ -63,9 +70,26 @@ export class BackgroundTaskManager {
     this.tasks.set(task.id, task);
     this.startPolling();
 
+    // Spawn tmux pane for this background task
+    // IMPORTANT: We await here and add delay so TUI can start before we send prompt
+    if (this.tmuxConfig.enabled) {
+      const paneResult = await spawnTmuxPane(
+        session.data.id,
+        `@${opts.agent}: ${opts.description}`,
+        this.tmuxConfig,
+        this.serverUrl
+      ).catch(() => ({ success: false, paneId: undefined }));
+      
+      // Store pane ID for auto-close when task completes
+      if (paneResult.success && paneResult.paneId) {
+        task.paneId = paneResult.paneId;
+        // Give TUI time to initialize and subscribe to session events
+        await new Promise((r) => setTimeout(r, 500));
+      }
+    }
+
     const promptQuery: Record<string, string> = {
       directory: this.directory,
-      agent: opts.agent,
     };
     if (opts.model) {
       promptQuery.model = opts.model;
@@ -74,6 +98,8 @@ export class BackgroundTaskManager {
     await this.client.session.prompt({
       path: { id: session.data.id },
       body: {
+        agent: opts.agent,
+        tools: { background_task: false, task: false },
         parts: [{ type: "text", text: opts.prompt }],
       },
       query: promptQuery,
@@ -147,31 +173,57 @@ export class BackgroundTaskManager {
 
   private async pollTask(task: BackgroundTask) {
     try {
-      const session = await this.client.session.get({
-        path: { id: task.sessionId },
-      });
+      // Check session status first
+      const statusResult = await this.client.session.status();
+      const allStatuses = (statusResult.data ?? {}) as Record<string, { type: string }>;
+      const sessionStatus = allStatuses[task.sessionId];
 
-      const sessionData = session.data as { share?: { messages?: Array<{ role: string; parts?: Array<{ type: string; text?: string }> }> } } | undefined;
-      const messages = sessionData?.share?.messages ?? [];
-      const assistantMessages = messages.filter((m) => m.role === "assistant");
-      const lastMessage = assistantMessages[assistantMessages.length - 1];
+      // If session is still active (not idle), don't try to read messages yet
+      if (sessionStatus && sessionStatus.type !== "idle") {
+        return;
+      }
 
-      if (lastMessage?.parts) {
-        const textContent = lastMessage.parts
-          .filter((p) => p.type === "text" && p.text)
-          .map((p) => p.text)
-          .join("\n");
+      // Get messages using correct API
+      const messagesResult = await this.client.session.messages({ path: { id: task.sessionId } });
+      const messages = (messagesResult.data ?? messagesResult) as Array<{ info?: { role: string }; parts?: Array<{ type: string; text?: string }> }>;
+      const assistantMessages = messages.filter((m) => m.info?.role === "assistant");
 
-        if (textContent) {
-          task.result = textContent;
-          task.status = "completed";
-          task.completedAt = new Date();
+      if (assistantMessages.length === 0) {
+        return; // No response yet
+      }
+
+      // Extract text from all assistant messages
+      const extractedContent: string[] = [];
+      for (const message of assistantMessages) {
+        for (const part of message.parts ?? []) {
+          if ((part.type === "text" || part.type === "reasoning") && part.text) {
+            extractedContent.push(part.text);
+          }
+        }
+      }
+
+      const responseText = extractedContent.filter((t) => t.length > 0).join("\n\n");
+      if (responseText) {
+        task.result = responseText;
+        task.status = "completed";
+        task.completedAt = new Date();
+        
+        // Auto-close tmux pane when task completes
+        if (task.paneId) {
+          log("[background-manager] pollTask: task completed, closing pane", { taskId: task.id, paneId: task.paneId });
+          await closeTmuxPane(task.paneId);
         }
       }
     } catch (error) {
       task.status = "failed";
       task.error = error instanceof Error ? error.message : String(error);
       task.completedAt = new Date();
+      
+      // Auto-close tmux pane on failure too
+      if (task.paneId) {
+        log("[background-manager] pollTask: task failed, closing pane", { taskId: task.id, paneId: task.paneId });
+        await closeTmuxPane(task.paneId);
+      }
     }
   }
 }

@@ -12,15 +12,36 @@ import {
   ast_grep_replace,
   antigravity_quota,
 } from "./tools";
-import { loadPluginConfig } from "./config";
+import { loadPluginConfig, type TmuxConfig } from "./config";
 import { createBuiltinMcps } from "./mcp";
 import { createAutoUpdateCheckerHook } from "./hooks";
+import { startTmuxCheck } from "./utils";
+import { log } from "./shared/logger";
 
 const OhMyOpenCodeLite: Plugin = async (ctx) => {
   const config = loadPluginConfig(ctx.directory);
   const agents = getAgentConfigs(config);
-  const backgroundManager = new BackgroundTaskManager(ctx);
-  const backgroundTools = createBackgroundTools(ctx, backgroundManager);
+
+  // Parse tmux config with defaults
+  const tmuxConfig: TmuxConfig = {
+    enabled: config.tmux?.enabled ?? false,
+    split_direction: config.tmux?.split_direction ?? "horizontal",
+    pane_size: config.tmux?.pane_size ?? 30,
+  };
+
+  log("[plugin] initialized with tmux config", { 
+    tmuxConfig, 
+    rawTmuxConfig: config.tmux,
+    directory: ctx.directory 
+  });
+
+  // Start background tmux check if enabled
+  if (tmuxConfig.enabled) {
+    startTmuxCheck();
+  }
+
+  const backgroundManager = new BackgroundTaskManager(ctx, tmuxConfig);
+  const backgroundTools = createBackgroundTools(ctx, backgroundManager, tmuxConfig);
   const mcps = createBuiltinMcps(config.disabled_mcps);
 
   // Initialize auto-update checker hook
@@ -75,5 +96,5 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
 
 export default OhMyOpenCodeLite;
 
-export type { PluginConfig, AgentOverrideConfig, AgentName, McpName } from "./config";
+export type { PluginConfig, AgentOverrideConfig, AgentName, McpName, TmuxConfig } from "./config";
 export type { RemoteMcpConfig } from "./mcp";

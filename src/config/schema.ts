@@ -9,6 +9,15 @@ export const AgentOverrideConfigSchema = z.object({
   disable: z.boolean().optional(),
 });
 
+// Tmux integration configuration
+export const TmuxConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  split_direction: z.enum(["horizontal", "vertical"]).default("horizontal"),
+  pane_size: z.number().min(1).max(99).default(30),
+});
+
+export type TmuxConfig = z.infer<typeof TmuxConfigSchema>;
+
 export type AgentOverrideConfig = z.infer<typeof AgentOverrideConfigSchema>;
 
 // MCP names
@@ -20,6 +29,7 @@ export const PluginConfigSchema = z.object({
   agents: z.record(z.string(), AgentOverrideConfigSchema).optional(),
   disabled_agents: z.array(z.string()).optional(),
   disabled_mcps: z.array(z.string()).optional(),
+  tmux: TmuxConfigSchema.optional(),
 });
 
 export type PluginConfig = z.infer<typeof PluginConfigSchema>;
