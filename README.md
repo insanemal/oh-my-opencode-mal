@@ -28,7 +28,7 @@
   - [Oracle](#oracle)
   - [Librarian](#librarian)
   - [Frontend Designer](#frontend-designer)
-  - [Coder](#coder)
+  - [Scribe](#scribe)
   - [Multimodal Viewer](#multimodal-viewer)
   - [Code Simplifier](#code-simplifier)
 - [🛠️ **Tools & Capabilities**](#tools--capabilities)
@@ -189,7 +189,7 @@ The plugin follows a "Hub and Spoke" model:
 3. **Delegation**:
    - Launches an `@explore` background task to find all auth-related files.
    - Launches a `@librarian` task to check the latest documentation for the auth library used.
-4. **Integration**: Once background results are ready, the Orchestrator delegates to `@coder` for multi-file refactor.
+4. **Integration**: Once background results are ready, the Orchestrator delegates to `@scribe` for multi-file refactor.
 5. **Review**: Orchestrator deep-reviews the code, fixes any issues directly, marks complete.
 
 ---
@@ -278,17 +278,17 @@ Modern responsive design, CSS/Tailwind mastery, micro-animations, component arch
 
 ---
 
-### Coder
+### Scribe
 
-<a href="src/agents/coder.ts"><img src="img/scribe.png" alt="Coder" align="right" width="240"></a>
+<a href="src/agents/scribe.ts"><img src="img/scribe.png" alt="Scribe" align="right" width="240"></a>
 
-> **The Coder** is pure execution - no ego, no overthinking, just code. When The Orchestrator has done the thinking and made the decisions, The Coder implements. Fast, clean, focused. They don't question the architecture; they build it. They don't redesign; they deliver.
+> **The Scribe** writes what The Orchestrator dictates - code, docs, tests, whatever is needed. When the thinking is done and decisions are made, The Scribe implements. Fast, clean, focused. They don't question the architecture; they build it. They don't redesign; they deliver.
 
 **Role:** `Fast implementation of multi-file tasks`  
 **Model:** `cerebras/zai-glm-4.7`  
-**Prompt:** [src/agents/coder.ts](src/agents/coder.ts)
+**Prompt:** [src/agents/scribe.ts](src/agents/scribe.ts)
 
-Multi-file implementations, boilerplate generation, scaffolding, repetitive edits. *The Orchestrator thinks; The Coder types.*
+Multi-file implementations, boilerplate generation, scaffolding, repetitive edits. *The Orchestrator thinks; The Scribe writes.*
 
 <br clear="both">
 

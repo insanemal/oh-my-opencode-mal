@@ -52,7 +52,7 @@ export type AgentName =
   | "librarian"
   | "explore"
   | "frontend-ui-ux-engineer"
-  | "coder"
+  | "scribe"
   | "multimodal-looker"
   | "code-simplicity-reviewer";
 
@@ -62,7 +62,7 @@ export const DEFAULT_MODELS: Record<AgentName, string> = {
   librarian: "google/gemini-3-flash",
   explore: "cerebras/zai-glm-4.6",
   "frontend-ui-ux-engineer": "google/gemini-3-flash",
-  coder: "cerebras/zai-glm-4.7",
+  scribe: "cerebras/zai-glm-4.7",
   "multimodal-looker": "google/gemini-3-flash",
   "code-simplicity-reviewer": "google/claude-opus-4-5-thinking",
 };
