@@ -36,10 +36,6 @@ export type AgentOverrideConfig = z.infer<typeof AgentOverrideConfigSchema>;
 export const McpNameSchema = z.enum(["websearch", "context7", "grep_app"]);
 export type McpName = z.infer<typeof McpNameSchema>;
 
-// Skill names
-export const SkillNameSchema = z.enum(["yagni-enforcement", "playwright"]);
-export type SkillName = z.infer<typeof SkillNameSchema>;
-
 // Skill configuration - maps skill name to allowed agents
 export const SkillConfigSchema = z.record(
   z.string(), // skill name

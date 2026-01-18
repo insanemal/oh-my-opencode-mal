@@ -29,8 +29,10 @@
   - [Librarian](#librarian)
   - [Designer](#designer)
 - [🧩 **Skills**](#-skills)
+  - [Available Skills](#available-skills)
   - [YAGNI Enforcement](#yagni-enforcement)
   - [Playwright Integration](#playwright-integration)
+  - [Customizing Skill Assignments](#customizing-skill-assignments)
 - [🛠️ **Tools & Capabilities**](#tools--capabilities)
   - [Tmux Integration](#tmux-integration)
   - [Quota Tool](#quota-tool)
@@ -188,10 +190,10 @@ The plugin follows a "Hub and Spoke" model:
 1. **User Prompt**: "Refactor the auth logic and update the docs."
 2. **Orchestrator**: Creates a TODO list.
 3. **Delegation**:
-   - Launches an `@explore` background task to find all auth-related files.
+   - Launches an `@explorer` background task to find all auth-related files.
    - Launches a `@librarian` task to check the latest documentation for the auth library used.
 4. **Integration**: Once background results are ready, the Orchestrator performs the refactor.
-5. **Finalization**: Passes the changes to `@document-writer` to update the README.
+5. **Finalization**: Updates documentation inline (orchestrator handles docs directly now).
 
 ---
 
@@ -274,54 +276,6 @@ Documentation lookup, GitHub code search, library research, best practice retrie
 **Prompt:** [src/agents/designer.ts](src/agents/designer.ts)
 
 Modern responsive design, CSS/Tailwind mastery, micro-animations, component architecture. *Visual excellence over code perfection - beauty is the priority.*
-
-<br clear="both">
-
----
-
-### Document Writer
-
-<a href="src/agents/document-writer.ts"><img src="img/scribe.png" alt="Document Writer" align="right" width="240"></a>
-
-> **The Scribe** was there when the first README was written - and wept, for it was incomplete. They have devoted eternity to the sacred art of documentation: clear, scannable, honest. While others ship features, The Scribe ensures those features are understood. Every code example works. Every explanation enlightens.
-
-**Role:** `Technical documentation and knowledge capture`  
-**Model:** `google/gemini-3-flash`  
-**Prompt:** [src/agents/document-writer.ts](src/agents/document-writer.ts)
-
-README crafting, API documentation, architecture docs, inline comments that don't insult your intelligence. *Match existing style; focus on "why," not just "what."*
-
-<br clear="both">
-
----
-
-### Multimodal Viewer
-
-<a href="src/agents/multimodal.ts"><img src="img/multimodal.png" alt="Multimodal Viewer" align="right" width="240"></a>
-
-> **The Visionary** sees what others cannot - literally. Screenshots, wireframes, diagrams, PDFs: all are text to them. When a designer throws a Figma mockup at the team and vanishes, The Visionary translates vision into specification. They read the unreadable and describe the indescribable.
-
-**Role:** `Image and visual content analysis`  
-**Model:** `google/gemini-3-flash`  
-**Prompt:** [src/agents/multimodal.ts](src/agents/multimodal.ts)
-
-Extract text from images, interpret diagrams, analyze UI screenshots, summarize visual documents. *Report what they observe; inference is for others.*
-
-<br clear="both">
-
----
-
-### Code Simplifier
-
-<a href="src/agents/simplicity-reviewer.ts"><img src="img/code-simplicity.png" alt="Code Simplifier" align="right" width="240"></a>
-
-> **The Minimalist** has one sacred truth: every line of code is a liability. They hunt abstractions that serve no purpose, defensive checks that defend nothing, and "clever" solutions that will haunt you in six months. Where others add, The Minimalist subtracts - ruthlessly, joyfully, necessarily.
-
-**Role:** `Code simplification and YAGNI enforcement`  
-**Model:** `google/claude-opus-4-5-thinking`  
-**Prompt:** [src/agents/simplicity-reviewer.ts](src/agents/simplicity-reviewer.ts)
-
-Identify unnecessary complexity, challenge premature abstractions, estimate LOC reduction, enforce minimalism. *Read-only: they judge; The Orchestrator executes the sentence.*
 
 <br clear="both">
 
@@ -428,21 +382,54 @@ Fast code search and refactoring:
 
 ## 🧩 Skills
 
-Skills are specialized capabilities that combine MCP servers with specific instructions for the Orchestrator.
+Skills are specialized capabilities that combine MCP servers with specific instructions. Unlike agents, skills are **assigned to specific agents** - only assigned agents can load and use a skill.
 
-### Playwright Integration
+### Available Skills
 
-**The Orchestrator's eyes and hands in the browser.**
+| Skill | Description | Default Agents |
+|-------|-------------|----------------|
+| `yagni-enforcement` | Code complexity analysis and YAGNI enforcement | `orchestrator` |
+| `playwright` | Browser automation via Playwright MCP | `orchestrator`, `designer` |
+
+### Skill Tools
 
 | Tool | Description |
 |------|-------------|
-| `omos_skill` | Loads a skill (e.g., `playwright`) and provides its instructions and available MCP tools |
-| `omos_skill_mcp` | Invokes a specific tool from an MCP server managed by a skill |
+| `omo_skill` | Loads a skill and provides its instructions and available MCP tools |
+| `omo_skill_mcp` | Invokes a specific tool from an MCP server managed by a skill |
 
-#### Key Features
+### YAGNI Enforcement
+
+**The Minimalist's sacred truth: every line of code is a liability.**
+
+Use after major refactors or before finalizing PRs. Identifies unnecessary complexity, challenges premature abstractions, estimates LOC reduction, and enforces minimalism.
+
+### Playwright Integration
+
+**Browser automation for visual verification and testing.**
+
 - **Browser Automation**: Full Playwright capabilities (browsing, clicking, typing, scraping).
 - **Screenshots**: Capture visual state of any web page.
-- **Sandboxed Output**: Screenshots are safely saved to `/tmp/playwright-mcp-output/`.
+- **Sandboxed Output**: Screenshots saved to session subdirectory (check tool output for path).
+
+### Customizing Skill Assignments
+
+Override default skill-to-agent assignments in your [Plugin Config](#plugin-config-oh-my-opencode-slimjson):
+
+```json
+{
+  "skills": {
+    "yagni-enforcement": {
+      "agents": ["orchestrator", "oracle"]
+    },
+    "playwright": {
+      "agents": ["designer"]
+    }
+  }
+}
+```
+
+> **Note:** Custom config **replaces** defaults entirely - if you override `playwright`, only the agents you list will have access.
 
 ---
 
@@ -501,16 +488,21 @@ All plugin options in one file:
     "layout": "main-vertical",
     "main_pane_size": 60
   },
-  "disabled_agents": ["multimodal-looker", "code-simplicity-reviewer"],
+  "disabled_agents": [],
   "disabled_mcps": ["websearch", "grep_app"],
   "agents": {
     "orchestrator": {
       "model": "openai/gpt-5.2-codex",
       "variant": "high"
     },
-    "explore": {
+    "explorer": {
       "model": "opencode/glm-4.7",
       "variant": "low"
+    }
+  },
+  "skills": {
+    "playwright": {
+      "agents": ["orchestrator", "designer"]
     }
   }
 }
@@ -523,10 +515,11 @@ All plugin options in one file:
 | `tmux.enabled` | boolean | `false` | Enable tmux pane spawning for sub-agents |
 | `tmux.layout` | string | `"main-vertical"` | Layout preset: `main-vertical`, `main-horizontal`, `tiled`, `even-horizontal`, `even-vertical` |
 | `tmux.main_pane_size` | number | `60` | Main pane size as percentage (20-80) |
-| `disabled_agents` | string[] | `[]` | Agent IDs to disable (e.g., `"multimodal-looker"`) |
+| `disabled_agents` | string[] | `[]` | Agent IDs to disable (e.g., `"explorer"`) |
 | `disabled_mcps` | string[] | `[]` | MCP server IDs to disable (e.g., `"websearch"`) |
 | `agents.<name>.model` | string | — | Override the LLM for a specific agent |
 | `agents.<name>.variant` | string | — | Reasoning effort: `"low"`, `"medium"`, `"high"` |
+| `skills.<name>.agents` | string[] | — | Override which agents can use a skill (replaces defaults) |
 
 ---
 
