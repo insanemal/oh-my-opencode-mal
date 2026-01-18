@@ -351,6 +351,15 @@ const MODEL_MAPPINGS = {
   },
 } as const;
 
+// Default skills per agent - mirrors DEFAULT_AGENT_SKILLS from builtin.ts
+const DEFAULT_SKILLS: Record<string, string[]> = {
+  orchestrator: ["*"],
+  designer: ["playwright"],
+  oracle: [],
+  librarian: [],
+  explorer: [],
+};
+
 export function generateLiteConfig(installConfig: InstallConfig): Record<string, unknown> {
   // Determine base provider
   const baseProvider = installConfig.hasAntigravity
@@ -364,21 +373,24 @@ export function generateLiteConfig(installConfig: InstallConfig): Record<string,
   const config: Record<string, unknown> = { agents: {} };
 
   if (baseProvider) {
-    // Start with base provider models
-    const agents: Record<string, { model: string }> = Object.fromEntries(
-      Object.entries(MODEL_MAPPINGS[baseProvider]).map(([k, v]) => [k, { model: v }])
+    // Start with base provider models and include default skills
+    const agents: Record<string, { model: string; skills: string[] }> = Object.fromEntries(
+      Object.entries(MODEL_MAPPINGS[baseProvider]).map(([k, v]) => [
+        k,
+        { model: v, skills: DEFAULT_SKILLS[k] ?? [] },
+      ])
     );
 
     // Apply provider-specific overrides for mixed configurations
     if (installConfig.hasAntigravity) {
       if (installConfig.hasOpenAI) {
-        agents["oracle"] = { model: "openai/gpt-5.2-codex" };
+        agents["oracle"] = { model: "openai/gpt-5.2-codex", skills: DEFAULT_SKILLS["oracle"] ?? [] };
       }
       if (installConfig.hasCerebras) {
-        agents["explore"] = { model: "cerebras/zai-glm-4.6" };
+        agents["explore"] = { model: "cerebras/zai-glm-4.6", skills: DEFAULT_SKILLS["explorer"] ?? [] };
       }
     } else if (installConfig.hasOpenAI && installConfig.hasCerebras) {
-      agents["explore"] = { model: "cerebras/zai-glm-4.6" };
+      agents["explore"] = { model: "cerebras/zai-glm-4.6", skills: DEFAULT_SKILLS["explorer"] ?? [] };
     }
     config.agents = agents;
   }
