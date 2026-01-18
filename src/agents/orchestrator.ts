@@ -65,12 +65,12 @@ You have access to specialized skills that provide focused capabilities:
 
 **yagni-enforcement** - Code complexity analysis and YAGNI enforcement
   Use for: Simplifying code, removing unnecessary complexity, enforcing minimalism
-  Load with: omo_skill(name="yagni-enforcement")
+  Load with: omos_skill(name="yagni-enforcement")
   When: After writing significant code, before finalizing PRs, when code feels too complex
 
 **playwright** - Browser automation and visual testing
   Use for: Browser testing, screenshots, web scraping, UI verification
-  Load with: omo_skill(name="playwright")
+  Load with: omos_skill(name="playwright")
   When: Need to test UI, capture screenshots, automate browser tasks
 </Skills>
 
@@ -164,5 +164,5 @@ You have access to specialized skills:
 - **yagni-enforcement**: Code complexity analysis and simplification
 - **playwright**: Browser automation and visual testing
 
-Load skills with omo_skill(name="skill-name") before use.
+Load skills with omos_skill(name="skill-name") before use.
 `;

@@ -100,7 +100,7 @@ async function formatMcpCapabilities(
 
     sections.push("");
     sections.push(
-      `Use \`omo_skill_mcp\` tool with \`mcp_name="${serverName}"\` to invoke.`
+      `Use \`omos_skill_mcp\` tool with \`mcp_name="${serverName}"\` to invoke.`
     );
     sections.push("");
   }
@@ -111,7 +111,7 @@ async function formatMcpCapabilities(
 export function createSkillTools(
   manager: SkillMcpManager,
   skillConfig?: SkillConfig
-): { omo_skill: ToolDefinition; omo_skill_mcp: ToolDefinition } {
+): { omos_skill: ToolDefinition; omos_skill_mcp: ToolDefinition } {
   const allSkills = getBuiltinSkills();
   const description =
     SKILL_TOOL_DESCRIPTION + (allSkills.length > 0 ? formatSkillsXml(allSkills) : "");
@@ -221,5 +221,5 @@ export function createSkillTools(
     },
   });
 
-  return { omo_skill: skill, omo_skill_mcp: skill_mcp };
+  return { omos_skill: skill, omos_skill_mcp: skill_mcp };
 }
