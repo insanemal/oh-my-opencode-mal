@@ -3,7 +3,6 @@ import type { AgentDefinition } from "./orchestrator";
 export function createExploreAgent(model: string): AgentDefinition {
   return {
     name: "explore",
-    description: "Fast codebase search and pattern matching",
     config: {
       model,
       temperature: 0.1,

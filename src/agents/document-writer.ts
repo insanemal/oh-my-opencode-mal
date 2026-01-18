@@ -3,7 +3,6 @@ import type { AgentDefinition } from "./orchestrator";
 export function createDocumentWriterAgent(model: string): AgentDefinition {
   return {
     name: "document-writer",
-    description: "Technical documentation and READMEs",
     config: {
       model,
       temperature: 0.3,

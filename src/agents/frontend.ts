@@ -3,7 +3,6 @@ import type { AgentDefinition } from "./orchestrator";
 export function createFrontendAgent(model: string): AgentDefinition {
   return {
     name: "frontend-ui-ux-engineer",
-    description: "UI/UX implementation and visual changes",
     config: {
       model,
       temperature: 0.7,
