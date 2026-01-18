@@ -402,13 +402,6 @@ Skills are specialized capabilities that agents can use. Each agent has a defaul
 | `librarian` | none |
 | `explorer` | none |
 
-### Skill Tools
-
-| Tool | Description |
-|------|-------------|
-| `omos_skill` | Loads a skill and provides its instructions and available MCP tools |
-| `omos_skill_mcp` | Invokes a specific tool from an MCP server managed by a skill |
-
 ### YAGNI Enforcement
 
 **The Minimalist's sacred truth: every line of code is a liability.**
@@ -430,8 +423,11 @@ Override skills per-agent in your [Plugin Config](#plugin-config-oh-my-opencode-
 ```json
 {
   "agents": {
+    "orchestrator": {
+      "skills": ["*"]
+    },
     "designer": {
-      "skills": ["playwright", "yagni-enforcement"]
+      "skills": ["playwright"]
     }
   }
 }
