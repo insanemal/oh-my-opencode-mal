@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+// Skill names - "*" means all skills
+export const SkillNameSchema = z.enum(["yagni-enforcement", "playwright", "*"]);
+export type SkillName = z.infer<typeof SkillNameSchema>;
+
 // Agent override configuration (distinct from SDK's AgentConfig)
 export const AgentOverrideConfigSchema = z.object({
   model: z.string().optional(),
@@ -8,6 +12,7 @@ export const AgentOverrideConfigSchema = z.object({
   prompt_append: z.string().optional(),
   variant: z.string().optional().catch(undefined),
   disable: z.boolean().optional(),
+  skills: z.array(z.string()).optional(), // skills this agent can use ("*" = all)
 });
 
 // Tmux layout options
@@ -36,21 +41,11 @@ export type AgentOverrideConfig = z.infer<typeof AgentOverrideConfigSchema>;
 export const McpNameSchema = z.enum(["websearch", "context7", "grep_app"]);
 export type McpName = z.infer<typeof McpNameSchema>;
 
-// Skill configuration - maps skill name to allowed agents
-export const SkillConfigSchema = z.record(
-  z.string(), // skill name
-  z.object({
-    agents: z.array(z.string()), // list of agent names that can use this skill
-  })
-);
-export type SkillConfig = z.infer<typeof SkillConfigSchema>;
-
 // Main plugin config
 export const PluginConfigSchema = z.object({
   agents: z.record(z.string(), AgentOverrideConfigSchema).optional(),
   disabled_agents: z.array(z.string()).optional(),
   disabled_mcps: z.array(z.string()).optional(),
-  skills: SkillConfigSchema.optional(),
   tmux: TmuxConfigSchema.optional(),
 });
 

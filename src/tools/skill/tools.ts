@@ -4,7 +4,7 @@ import { SKILL_MCP_TOOL_DESCRIPTION, SKILL_TOOL_DESCRIPTION } from "./constants"
 import { getSkillByName, getBuiltinSkills, getSkillsForAgent, canAgentUseSkill } from "./builtin";
 import type { SkillArgs, SkillMcpArgs, SkillDefinition } from "./types";
 import { SkillMcpManager } from "./mcp-manager";
-import type { SkillConfig } from "../../config/schema";
+import type { PluginConfig } from "../../config/schema";
 
 type ToolContext = {
   sessionID: string;
@@ -110,7 +110,7 @@ async function formatMcpCapabilities(
 
 export function createSkillTools(
   manager: SkillMcpManager,
-  skillConfig?: SkillConfig
+  pluginConfig?: PluginConfig
 ): { omos_skill: ToolDefinition; omos_skill_mcp: ToolDefinition } {
   const allSkills = getBuiltinSkills();
   const description =
@@ -135,8 +135,8 @@ export function createSkillTools(
       }
 
       // Check if this agent can use this skill
-      if (!canAgentUseSkill(agentName, args.name, skillConfig)) {
-        const allowedSkills = getSkillsForAgent(agentName, skillConfig);
+      if (!canAgentUseSkill(agentName, args.name, pluginConfig)) {
+        const allowedSkills = getSkillsForAgent(agentName, pluginConfig);
         const allowedNames = allowedSkills.map(s => s.name).join(", ");
         throw new Error(
           `Agent "${agentName}" cannot use skill "${args.name}". ` +
@@ -187,7 +187,7 @@ export function createSkillTools(
       }
 
       // Check if this agent can use this skill
-      if (!canAgentUseSkill(agentName, args.skillName, skillConfig)) {
+      if (!canAgentUseSkill(agentName, args.skillName, pluginConfig)) {
         throw new Error(
           `Agent "${agentName}" cannot use skill "${args.skillName}".`
         );

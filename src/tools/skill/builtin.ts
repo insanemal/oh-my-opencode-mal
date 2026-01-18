@@ -1,14 +1,13 @@
 import type { SkillDefinition } from "./types";
-import type { SkillConfig } from "../../config/schema";
+import type { PluginConfig, AgentName } from "../../config/schema";
 
-/** Default skill-to-agent assignments */
-export const DEFAULT_SKILL_CONFIG: SkillConfig = {
-  "yagni-enforcement": {
-    agents: ["orchestrator"],
-  },
-  playwright: {
-    agents: ["orchestrator", "designer"],
-  },
+/** Default skills per agent - "*" means all skills */
+export const DEFAULT_AGENT_SKILLS: Record<AgentName, string[]> = {
+  orchestrator: ["*"],
+  designer: ["playwright"],
+  oracle: [],
+  librarian: [],
+  explorer: [],
 };
 
 const YAGNI_TEMPLATE = `# YAGNI Enforcement Skill
@@ -162,21 +161,21 @@ export function getSkillByName(name: string): SkillDefinition | undefined {
 /**
  * Get skills available for a specific agent
  * @param agentName - The name of the agent
- * @param configOverride - Optional user config to override defaults
+ * @param config - Optional plugin config with agent overrides
  */
 export function getSkillsForAgent(
   agentName: string,
-  configOverride?: SkillConfig
+  config?: PluginConfig
 ): SkillDefinition[] {
-  const config = configOverride ?? DEFAULT_SKILL_CONFIG;
   const allSkills = getBuiltinSkills();
-
-  return allSkills.filter((skill) => {
-    const skillConfig = config[skill.name];
-    // If no config for this skill, it's not available to any agent
-    if (!skillConfig) return false;
-    return skillConfig.agents.includes(agentName);
-  });
+  const agentSkills = getAgentSkillList(agentName, config);
+  
+  // "*" means all skills
+  if (agentSkills.includes("*")) {
+    return allSkills;
+  }
+  
+  return allSkills.filter((skill) => agentSkills.includes(skill.name));
 }
 
 /**
@@ -185,10 +184,29 @@ export function getSkillsForAgent(
 export function canAgentUseSkill(
   agentName: string,
   skillName: string,
-  configOverride?: SkillConfig
+  config?: PluginConfig
 ): boolean {
-  const config = configOverride ?? DEFAULT_SKILL_CONFIG;
-  const skillConfig = config[skillName];
-  if (!skillConfig) return false;
-  return skillConfig.agents.includes(agentName);
+  const agentSkills = getAgentSkillList(agentName, config);
+  
+  // "*" means all skills
+  if (agentSkills.includes("*")) {
+    return true;
+  }
+  
+  return agentSkills.includes(skillName);
+}
+
+/**
+ * Get the skill list for an agent (from config or defaults)
+ */
+function getAgentSkillList(agentName: string, config?: PluginConfig): string[] {
+  // Check if config has override for this agent
+  const agentConfig = config?.agents?.[agentName];
+  if (agentConfig?.skills !== undefined) {
+    return agentConfig.skills;
+  }
+  
+  // Fall back to defaults
+  const defaultSkills = DEFAULT_AGENT_SKILLS[agentName as AgentName];
+  return defaultSkills ?? [];
 }

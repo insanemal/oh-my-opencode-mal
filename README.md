@@ -30,9 +30,10 @@
   - [Designer](#designer)
 - [🧩 **Skills**](#-skills)
   - [Available Skills](#available-skills)
+  - [Default Skill Assignments](#default-skill-assignments)
   - [YAGNI Enforcement](#yagni-enforcement)
   - [Playwright Integration](#playwright-integration)
-  - [Customizing Skill Assignments](#customizing-skill-assignments)
+  - [Customizing Agent Skills](#customizing-agent-skills)
 - [🛠️ **Tools & Capabilities**](#tools--capabilities)
   - [Tmux Integration](#tmux-integration)
   - [Quota Tool](#quota-tool)
@@ -382,21 +383,31 @@ Fast code search and refactoring:
 
 ## 🧩 Skills
 
-Skills are specialized capabilities that combine MCP servers with specific instructions. Unlike agents, skills are **assigned to specific agents** - only assigned agents can load and use a skill.
+Skills are specialized capabilities that agents can use. Each agent has a default set of skills, which you can override in the agent config.
 
 ### Available Skills
 
-| Skill | Description | Default Agents |
-|-------|-------------|----------------|
-| `yagni-enforcement` | Code complexity analysis and YAGNI enforcement | `orchestrator` |
-| `playwright` | Browser automation via Playwright MCP | `orchestrator`, `designer` |
+| Skill | Description |
+|-------|-------------|
+| `yagni-enforcement` | Code complexity analysis and YAGNI enforcement |
+| `playwright` | Browser automation via Playwright MCP |
+
+### Default Skill Assignments
+
+| Agent | Default Skills |
+|-------|----------------|
+| `orchestrator` | `*` (all skills) |
+| `designer` | `playwright` |
+| `oracle` | none |
+| `librarian` | none |
+| `explorer` | none |
 
 ### Skill Tools
 
 | Tool | Description |
 |------|-------------|
-| `omo_skill` | Loads a skill and provides its instructions and available MCP tools |
-| `omo_skill_mcp` | Invokes a specific tool from an MCP server managed by a skill |
+| `omos_skill` | Loads a skill and provides its instructions and available MCP tools |
+| `omos_skill_mcp` | Invokes a specific tool from an MCP server managed by a skill |
 
 ### YAGNI Enforcement
 
@@ -412,24 +423,27 @@ Use after major refactors or before finalizing PRs. Identifies unnecessary compl
 - **Screenshots**: Capture visual state of any web page.
 - **Sandboxed Output**: Screenshots saved to session subdirectory (check tool output for path).
 
-### Customizing Skill Assignments
+### Customizing Agent Skills
 
-Override default skill-to-agent assignments in your [Plugin Config](#plugin-config-oh-my-opencode-slimjson):
+Override skills per-agent in your [Plugin Config](#plugin-config-oh-my-opencode-slimjson):
 
 ```json
 {
-  "skills": {
-    "yagni-enforcement": {
-      "agents": ["orchestrator", "oracle"]
+  "agents": {
+    "orchestrator": {
+      "skills": ["*"]
     },
-    "playwright": {
-      "agents": ["designer"]
+    "designer": {
+      "skills": ["playwright", "yagni-enforcement"]
+    },
+    "oracle": {
+      "skills": ["yagni-enforcement"]
     }
   }
 }
 ```
 
-> **Note:** Custom config **replaces** defaults entirely - if you override `playwright`, only the agents you list will have access.
+Use `"*"` to grant access to all skills.
 
 ---
 
@@ -493,16 +507,15 @@ All plugin options in one file:
   "agents": {
     "orchestrator": {
       "model": "openai/gpt-5.2-codex",
-      "variant": "high"
+      "variant": "high",
+      "skills": ["*"]
     },
     "explorer": {
       "model": "opencode/glm-4.7",
       "variant": "low"
-    }
-  },
-  "skills": {
-    "playwright": {
-      "agents": ["orchestrator", "designer"]
+    },
+    "designer": {
+      "skills": ["playwright"]
     }
   }
 }
@@ -519,7 +532,7 @@ All plugin options in one file:
 | `disabled_mcps` | string[] | `[]` | MCP server IDs to disable (e.g., `"websearch"`) |
 | `agents.<name>.model` | string | — | Override the LLM for a specific agent |
 | `agents.<name>.variant` | string | — | Reasoning effort: `"low"`, `"medium"`, `"high"` |
-| `skills.<name>.agents` | string[] | — | Override which agents can use a skill (replaces defaults) |
+| `agents.<name>.skills` | string[] | — | Skills this agent can use (`"*"` = all) |
 
 ---
 
