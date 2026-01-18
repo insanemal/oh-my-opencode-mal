@@ -1,4 +1,15 @@
 import type { SkillDefinition } from "./types";
+import type { SkillConfig } from "../../config/schema";
+
+/** Default skill-to-agent assignments */
+export const DEFAULT_SKILL_CONFIG: SkillConfig = {
+  "yagni-enforcement": {
+    agents: ["orchestrator"],
+  },
+  playwright: {
+    agents: ["orchestrator", "designer"],
+  },
+};
 
 const YAGNI_TEMPLATE = `# YAGNI Enforcement Skill
 
@@ -105,7 +116,7 @@ This skill provides browser automation capabilities via the Playwright MCP serve
 **Process**:
 1. Load the skill to access MCP tools
 2. Use playwright MCP tools for browser automation
-3. Screenshots are saved to \`/tmp/playwright-mcp-output/\`
+3. Screenshots are saved to a session subdirectory (check tool output for exact path)
 4. Report results with screenshot paths when relevant
 
 **Example Workflow** (Designer agent):
@@ -146,4 +157,38 @@ export function getBuiltinSkills(): SkillDefinition[] {
 
 export function getSkillByName(name: string): SkillDefinition | undefined {
   return builtinSkillsMap.get(name);
+}
+
+/**
+ * Get skills available for a specific agent
+ * @param agentName - The name of the agent
+ * @param configOverride - Optional user config to override defaults
+ */
+export function getSkillsForAgent(
+  agentName: string,
+  configOverride?: SkillConfig
+): SkillDefinition[] {
+  const config = configOverride ?? DEFAULT_SKILL_CONFIG;
+  const allSkills = getBuiltinSkills();
+
+  return allSkills.filter((skill) => {
+    const skillConfig = config[skill.name];
+    // If no config for this skill, it's not available to any agent
+    if (!skillConfig) return false;
+    return skillConfig.agents.includes(agentName);
+  });
+}
+
+/**
+ * Check if an agent can use a specific skill
+ */
+export function canAgentUseSkill(
+  agentName: string,
+  skillName: string,
+  configOverride?: SkillConfig
+): boolean {
+  const config = configOverride ?? DEFAULT_SKILL_CONFIG;
+  const skillConfig = config[skillName];
+  if (!skillConfig) return false;
+  return skillConfig.agents.includes(agentName);
 }
