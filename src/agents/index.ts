@@ -10,6 +10,16 @@ export type { AgentDefinition } from "./orchestrator";
 
 type AgentFactory = (model: string) => AgentDefinition;
 
+/** Map old agent names to new names for backward compatibility */
+const AGENT_ALIASES: Record<string, string> = {
+  "explore": "explorer",
+  "frontend-ui-ux-engineer": "designer",
+};
+
+function getOverride(overrides: Record<string, AgentOverrideConfig>, name: string): AgentOverrideConfig | undefined {
+  return overrides[name] ?? overrides[Object.keys(AGENT_ALIASES).find(k => AGENT_ALIASES[k] === name) ?? ""];
+}
+
 function applyOverrides(agent: AgentDefinition, override: AgentOverrideConfig): void {
   if (override.model) agent.config.model = override.model;
   if (override.temperature !== undefined) agent.config.temperature = override.temperature;
@@ -54,7 +64,7 @@ export function createAgents(config?: PluginConfig): AgentDefinition[] {
   const allSubAgents = protoSubAgents
     .filter((a) => !disabledAgents.has(a.name))
     .map((agent) => {
-      const override = agentOverrides[agent.name];
+      const override = getOverride(agentOverrides, agent.name);
       if (override) {
         applyOverrides(agent, override);
       }
@@ -63,10 +73,10 @@ export function createAgents(config?: PluginConfig): AgentDefinition[] {
 
   // 3. Create Orchestrator (with its own overrides)
   const orchestratorModel =
-    agentOverrides["orchestrator"]?.model ?? DEFAULT_MODELS["orchestrator"];
+    getOverride(agentOverrides, "orchestrator")?.model ?? DEFAULT_MODELS["orchestrator"];
   const orchestrator = createOrchestratorAgent(orchestratorModel);
   applyDefaultPermissions(orchestrator);
-  const oOverride = agentOverrides["orchestrator"];
+  const oOverride = getOverride(agentOverrides, "orchestrator");
   if (oOverride) {
     applyOverrides(orchestrator, oOverride);
   }
