@@ -3,8 +3,8 @@ import { DEFAULT_MODELS, type AgentName, type PluginConfig, type AgentOverrideCo
 import { createOrchestratorAgent, type AgentDefinition } from "./orchestrator";
 import { createOracleAgent } from "./oracle";
 import { createLibrarianAgent } from "./librarian";
-import { createExploreAgent } from "./explore";
-import { createFrontendAgent } from "./frontend";
+import { createExplorerAgent } from "./explorer";
+import { createDesignerAgent } from "./designer";
 
 export type { AgentDefinition } from "./orchestrator";
 
@@ -30,10 +30,10 @@ type SubagentName = Exclude<AgentName, "orchestrator">;
 
 /** Agent factories indexed by name */
 const SUBAGENT_FACTORIES: Record<SubagentName, AgentFactory> = {
-  explore: createExploreAgent,
+  explorer: createExplorerAgent,
   librarian: createLibrarianAgent,
   oracle: createOracleAgent,
-  "frontend-ui-ux-engineer": createFrontendAgent,
+  designer: createDesignerAgent,
 };
 
 /** Get list of agent names */

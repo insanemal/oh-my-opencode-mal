@@ -27,7 +27,7 @@
   - [Explorer](#explorer)
   - [Oracle](#oracle)
   - [Librarian](#librarian)
-  - [Frontend Designer](#frontend-designer)
+  - [Designer](#designer)
 - [🧩 **Skills**](#-skills)
   - [Technical Writing](#technical-writing)
   - [YAGNI Enforcement](#yagni-enforcement)
@@ -224,7 +224,7 @@ Write and execute code, orchestrate multi-agent workflows, parse the unspoken fr
 
 **Role:** `Codebase reconnaissance`  
 **Model:** `cerebras/zai-glm-4.6`  
-**Prompt:** [src/agents/explore.ts](src/agents/explore.ts)
+**Prompt:** [src/agents/explorer.ts](src/agents/explorer.ts)
 
 Regex search, AST pattern matching, file discovery, parallel exploration. *Read-only: they chart the territory; others conquer it.*
 
@@ -264,15 +264,15 @@ Documentation lookup, GitHub code search, library research, best practice retrie
 
 ---
 
-### Frontend Designer
+### Designer
 
-<a href="src/agents/frontend.ts"><img src="img/designer.png" alt="Frontend Designer" align="right" width="240"></a>
+<a href="src/agents/designer.ts"><img src="img/designer.png" alt="Designer" align="right" width="240"></a>
 
 > **The Designer** believes code should be beautiful - and so should everything it renders. Born from the frustration of a thousand ugly MVPs, they wield CSS like a brush and components like clay. Hand them a feature request; receive a masterpiece. They don't do "good enough."
 
 **Role:** `UI/UX implementation and visual excellence`  
 **Model:** `google/gemini-3-flash`  
-**Prompt:** [src/agents/frontend.ts](src/agents/frontend.ts)
+**Prompt:** [src/agents/designer.ts](src/agents/designer.ts)
 
 Modern responsive design, CSS/Tailwind mastery, micro-animations, component architecture. *Visual excellence over code perfection - beauty is the priority.*
 
