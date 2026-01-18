@@ -194,7 +194,6 @@ The plugin follows a "Hub and Spoke" model:
    - Launches an `@explorer` background task to find all auth-related files.
    - Launches a `@librarian` task to check the latest documentation for the auth library used.
 4. **Integration**: Once background results are ready, the Orchestrator performs the refactor.
-5. **Finalization**: Updates documentation inline (orchestrator handles docs directly now).
 
 ---
 
@@ -433,8 +432,6 @@ Override skills per-agent in your [Plugin Config](#plugin-config-oh-my-opencode-
 }
 ```
 
-Use `"*"` to grant access to all skills.
-
 ---
 
 ## MCP Servers
@@ -464,20 +461,6 @@ You can disable specific MCP servers by adding them to the `disabled_mcps` array
 | `.opencode/oh-my-opencode-slim.json` | Project-local plugin overrides (optional) |
 
 > **Platform paths:** On Windows, user config may also be at `%APPDATA%\opencode\`.
-
----
-
-### OpenCode Config (`opencode.json`)
-
-Enable the HTTP server for tmux integration:
-
-```json
-{
-  "server": {
-    "port": 4096
-  }
-}
-```
 
 ---
 
