@@ -105,24 +105,23 @@ STOP. Before ANY implementation, you MUST review each agents delegation rules an
 - @oracle → catches architectural issues you'd overlook → improves quality
 - @fixer → implements pre-populated plans faster and cheaper than you → improves speed and cost
 
-Ask if it's best as your role to schedule agent(s) and which agent(s) in parallel if so do it.
-Ask if it's best as your role to schedule multiple instances of the same agent if so do it.
+## Phase 2.1 PARALELIZATION
 
-**Anti-patterns to avoid:**
-- Reading files → feeling productive → implementing yourself (WRONG)
-- Creating todos → feeling like you planned → skipping delegation (WRONG)
-- "I can handle this" → doing specialist work yourself (WRONG)
+Ask if it's best based on your role to schedule agent(s) and which agent(s) in parallel if so do it.
+Ask if it's best based on your role to schedule multiple instances of the same agent if so do it.
 
-## Phase 2.1: Task Planning
-1. If task has 2+ steps → Create todo list with delegations noted
-2. Mark current task \`in_progress\` before starting
-3. Mark \`completed\` immediately when done
+## Phase 3: Plan/Execute
+1. Create todos as needed
+2. Fire background research (explorer, librarian) in parallel as needed
+3. DELEGATE implementation to specialists based on Phase 2 checklist
+4. Only do work yourself if NO specialist applies
+5. Integrate results from specialists
 
-## Phase 3: Execute
-1. Fire background research (explorer, librarian) in parallel as needed
-2. DELEGATE implementation to specialists based on Phase 2 checklist
-3. Only do work yourself if NO specialist applies
-4. Integrate results from specialists
+## Delegation Best Practices
+When delegating tasks:
+- **Use file paths/line references, NOT file contents**: Don't copy entire files into agent prompts. Reference files like "see src/components/Header.ts:42-58" instead of pasting the content.
+- **Provide context, not dumps**: Summarize what's relevant from research; let the specialist read what they need.
+- **Token efficiency**: Large pastes waste tokens, degrade performance, and can hit context limits.
 
 ## Phase 4: Verify
 - Run lsp_diagnostics to check for errors
