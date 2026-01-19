@@ -332,10 +332,10 @@ const MODEL_MAPPINGS = {
   openai: {
     orchestrator: "openai/gpt-5.2-codex",
     oracle: "openai/gpt-5.2-codex",
-    librarian: "openai/gpt-4.1-mini",
-    explorer: "openai/gpt-4.1-mini",
-    designer: "openai/gpt-4.1-mini",
-    fixer: "openai/gpt-4.1-mini",
+    librarian: "openai/gpt-5.1-codex-mini",
+    explorer: "openai/gpt-5.1-codex-mini",
+    designer: "openai/gpt-5.1-codex-mini",
+    fixer: "openai/gpt-5.1-codex-mini",
   },
   cerebras: {
     orchestrator: "cerebras/zai-glm-4.7",
