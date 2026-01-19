@@ -60,7 +60,7 @@ export const DEFAULT_MODELS: Record<AgentName, string> = {
   orchestrator: "google/claude-opus-4-5-thinking",
   oracle: "openai/gpt-5.2-codex",
   librarian: "google/gemini-3-flash",
-  explorer: "cerebras/zai-glm-4.7",
+  explorer: "google/gemini-3-flash",
   designer: "google/gemini-3-flash",
-  fixer: "cerebras/zai-glm-4.7",
+  fixer: "google/gemini-3-flash",
 };

@@ -337,14 +337,6 @@ const MODEL_MAPPINGS = {
     designer: "openai/gpt-5.1-codex-mini",
     fixer: "openai/gpt-5.1-codex-mini",
   },
-  cerebras: {
-    orchestrator: "cerebras/zai-glm-4.7",
-    oracle: "cerebras/zai-glm-4.7",
-    librarian: "cerebras/zai-glm-4.7",
-    explorer: "cerebras/zai-glm-4.7",
-    designer: "cerebras/zai-glm-4.7",
-    fixer: "cerebras/zai-glm-4.7",
-  },
   opencode: {
     orchestrator: "opencode/glm-4.7-free",
     oracle: "opencode/glm-4.7-free",

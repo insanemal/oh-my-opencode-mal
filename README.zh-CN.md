@@ -62,7 +62,7 @@ bunx oh-my-opencode-slim install
 或使用非交互模式：
 
 ```bash
-bunx oh-my-opencode-slim install --no-tui --antigravity=yes --openai=yes --cerebras=no
+bunx oh-my-opencode-slim install --no-tui --antigravity=yes --openai=yes --tmux=no
 ```
 
 安装完成后，使用提供商进行身份验证：
@@ -113,7 +113,6 @@ opencode --version
 
 1. “你是否订阅了 **Antigravity**？”（可使用 `google/` 前缀访问 Claude + Gemini）
 2. “你是否有 **OpenAI** API 的访问权限？”
-3. “你是否有 **Cerebras** API 的访问权限？”
 
 ---
 
@@ -122,19 +121,19 @@ opencode --version
 根据回答运行：
 
 ```bash
-bunx oh-my-opencode-slim install --no-tui --antigravity=<yes|no> --openai=<yes|no> --cerebras=<yes|no>
+bunx oh-my-opencode-slim install --no-tui --antigravity=<yes|no> --openai=<yes|no>
 ```
 
 **示例：**
 ```bash
 # Antigravity + OpenAI
-bunx oh-my-opencode-slim install --no-tui --antigravity=yes --openai=yes --cerebras=no
+bunx oh-my-opencode-slim install --no-tui --antigravity=yes --openai=yes --tmux=no
 
 # 仅 OpenAI
-bunx oh-my-opencode-slim install --no-tui --antigravity=no --openai=yes --cerebras=no
+bunx oh-my-opencode-slim install --no-tui --antigravity=no --openai=yes --tmux=no
 
-# 所有提供商
-bunx oh-my-opencode-slim install --no-tui --antigravity=yes --openai=yes --cerebras=yes
+# 无提供商（仅使用 Zen 免费模型）
+bunx oh-my-opencode-slim install --no-tui --antigravity=no --openai=no --tmux=no
 ```
 
 安装器会自动完成：
@@ -222,7 +221,7 @@ bunx oh-my-opencode-slim install --help
 > **探索者**穿梭代码库如风穿林——迅速、静默、无处不在。当编排者轻语“给我找到认证模块”，探索者已经带着四十条文件路径和地图归来。他们源自第一个 `grep` 命令，早已超越它，现在能看见凡人忽略的模式。
 
 **角色：** `代码侦查`  
-**模型：** `cerebras/zai-glm-4.7`  
+**模型：** `google/gemini-3-flash`  
 **提示：** [src/agents/explorer.ts](src/agents/explorer.ts)
 
 正则搜索、AST 模式匹配、文件发现、并行探索。*只读：他们绘制疆域；其他人征服它。*
@@ -286,7 +285,7 @@ bunx oh-my-opencode-slim install --help
 > **修复者**是执行他人想象的双手。当编排者规划、神谕者提点，修复者就开始落地。他们接收研究代理提供的完整上下文和明确任务说明，以极致精准实施。快速、高效、专注——他们不思考要建什么，只管去建。
 
 **角色：** `快速实现专家`  
-**模型：** `cerebras/zai-glm-4.7`  
+**模型：** `google/gemini-3-flash`  
 **提示：** [src/agents/fixer.ts](src/agents/fixer.ts)
 
 代码实现、重构、测试、验证。*执行计划——不研究、不委派、不策划。*
@@ -481,33 +480,63 @@ bunx oh-my-opencode-slim install --help
 
 ### 插件配置 (`oh-my-opencode-slim.json`)
 
-所有插件选项集中在一个文件中：
+安装程序会根据你的提供商生成此文件。你可以手动自定义它来混合搭配模型。
+
+<details open>
+<summary><b>示例：Antigravity + OpenAI (推荐)</b></summary>
 
 ```json
 {
+  "agents": {
+    "orchestrator": { "model": "google/claude-opus-4-5-thinking", "skills": ["*"] },
+    "oracle": { "model": "openai/gpt-5.2-codex", "skills": [] },
+    "librarian": { "model": "google/gemini-3-flash", "skills": [] },
+    "explorer": { "model": "google/gemini-3-flash", "skills": [] },
+    "designer": { "model": "google/gemini-3-flash", "skills": ["playwright"] },
+    "fixer": { "model": "google/gemini-3-flash", "skills": [] }
+  },
   "tmux": {
     "enabled": true,
     "layout": "main-vertical",
     "main_pane_size": 60
-  },
-  "disabled_agents": [],
-  "disabled_mcps": ["websearch", "grep_app"],
-  "agents": {
-    "orchestrator": {
-      "model": "openai/gpt-5.2-codex",
-      "variant": "high",
-      "skills": ["*"]
-    },
-    "explorer": {
-      "model": "opencode/glm-4.7",
-      "variant": "low"
-    },
-    "designer": {
-      "skills": ["playwright"]
-    }
   }
 }
 ```
+</details>
+
+<details>
+<summary><b>示例：仅 Antigravity</b></summary>
+
+```json
+{
+  "agents": {
+    "orchestrator": { "model": "google/claude-opus-4-5-thinking", "skills": ["*"] },
+    "oracle": { "model": "google/claude-opus-4-5-thinking", "skills": [] },
+    "librarian": { "model": "google/gemini-3-flash", "skills": [] },
+    "explorer": { "model": "google/gemini-3-flash", "skills": [] },
+    "designer": { "model": "google/gemini-3-flash", "skills": ["playwright"] },
+    "fixer": { "model": "google/gemini-3-flash", "skills": [] }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>示例：仅 OpenAI</b></summary>
+
+```json
+{
+  "agents": {
+    "orchestrator": { "model": "openai/gpt-5.2-codex", "skills": ["*"] },
+    "oracle": { "model": "openai/gpt-5.2-codex", "skills": [] },
+    "librarian": { "model": "openai/gpt-5.1-codex-mini", "skills": [] },
+    "explorer": { "model": "openai/gpt-5.1-codex-mini", "skills": [] },
+    "designer": { "model": "openai/gpt-5.1-codex-mini", "skills": ["playwright"] },
+    "fixer": { "model": "openai/gpt-5.1-codex-mini", "skills": [] }
+  }
+}
+```
+</details>
 
 #### 选项参考
 
@@ -521,6 +550,10 @@ bunx oh-my-opencode-slim install --help
 | `agents.<name>.model` | string | — | 覆盖特定代理的模型 |
 | `agents.<name>.variant` | string | — | 推理强度：`"low"`、`"medium"`、`"high"` |
 | `agents.<name>.skills` | string[] | — | 该代理可使用的技能（`"*"` 表示所有技能） |
+| `agents.<name>.temperature` | number | — | 该代理的温度 (0.0 到 2.0) |
+| `agents.<name>.prompt` | string | — | 该代理的基础提示词覆盖 |
+| `agents.<name>.prompt_append` | string | — | 追加到基础提示词后的文本 |
+| `agents.<name>.disable` | boolean | — | 禁用该特定代理 |
 
 ---
 

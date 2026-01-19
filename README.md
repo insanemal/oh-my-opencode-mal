@@ -294,7 +294,7 @@ Modern responsive design, CSS/Tailwind mastery, micro-animations, component arch
 > **The Fixer** is the hands that build what others envision. While The Orchestrator plans and The Oracle advises, The Fixer executes. They receive complete context from research agents and clear task specifications, then implement with surgical precision. Fast, efficient, and focused - they don't think about what to build, they just build it.
 
 **Role:** `Fast implementation specialist`  
-**Model:** `cerebras/zai-glm-4.7`  
+**Model:** `google/gemini-3-flash`  
 **Prompt:** [src/agents/fixer.ts](src/agents/fixer.ts)
 
 Code implementation, refactoring, testing, verification. *Execute the plan - no research, no delegation, no planning.*
@@ -489,33 +489,63 @@ You can disable specific MCP servers by adding them to the `disabled_mcps` array
 
 ### Plugin Config (`oh-my-opencode-slim.json`)
 
-All plugin options in one file:
+The installer generates this file based on your providers. You can manually customize it to mix and match models.
+
+<details open>
+<summary><b>Example: Antigravity + OpenAI (Recommended)</b></summary>
 
 ```json
 {
+  "agents": {
+    "orchestrator": { "model": "google/claude-opus-4-5-thinking", "skills": ["*"] },
+    "oracle": { "model": "openai/gpt-5.2-codex", "skills": [] },
+    "librarian": { "model": "google/gemini-3-flash", "skills": [] },
+    "explorer": { "model": "google/gemini-3-flash", "skills": [] },
+    "designer": { "model": "google/gemini-3-flash", "skills": ["playwright"] },
+    "fixer": { "model": "google/gemini-3-flash", "skills": [] }
+  },
   "tmux": {
     "enabled": true,
     "layout": "main-vertical",
     "main_pane_size": 60
-  },
-  "disabled_agents": [],
-  "disabled_mcps": ["websearch", "grep_app"],
-  "agents": {
-    "orchestrator": {
-      "model": "openai/gpt-5.2-codex",
-      "variant": "high",
-      "skills": ["*"]
-    },
-    "explorer": {
-      "model": "opencode/glm-4.7",
-      "variant": "low"
-    },
-    "designer": {
-      "skills": ["playwright"]
-    }
   }
 }
 ```
+</details>
+
+<details>
+<summary><b>Example: Antigravity Only</b></summary>
+
+```json
+{
+  "agents": {
+    "orchestrator": { "model": "google/claude-opus-4-5-thinking", "skills": ["*"] },
+    "oracle": { "model": "google/claude-opus-4-5-thinking", "skills": [] },
+    "librarian": { "model": "google/gemini-3-flash", "skills": [] },
+    "explorer": { "model": "google/gemini-3-flash", "skills": [] },
+    "designer": { "model": "google/gemini-3-flash", "skills": ["playwright"] },
+    "fixer": { "model": "google/gemini-3-flash", "skills": [] }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Example: OpenAI Only</b></summary>
+
+```json
+{
+  "agents": {
+    "orchestrator": { "model": "openai/gpt-5.2-codex", "skills": ["*"] },
+    "oracle": { "model": "openai/gpt-5.2-codex", "skills": [] },
+    "librarian": { "model": "openai/gpt-5.1-codex-mini", "skills": [] },
+    "explorer": { "model": "openai/gpt-5.1-codex-mini", "skills": [] },
+    "designer": { "model": "openai/gpt-5.1-codex-mini", "skills": ["playwright"] },
+    "fixer": { "model": "openai/gpt-5.1-codex-mini", "skills": [] }
+  }
+}
+```
+</details>
 
 #### Option Reference
 
@@ -529,6 +559,10 @@ All plugin options in one file:
 | `agents.<name>.model` | string | — | Override the LLM for a specific agent |
 | `agents.<name>.variant` | string | — | Reasoning effort: `"low"`, `"medium"`, `"high"` |
 | `agents.<name>.skills` | string[] | — | Skills this agent can use (`"*"` = all) |
+| `agents.<name>.temperature` | number | — | Temperature for this agent (0.0 to 2.0) |
+| `agents.<name>.prompt` | string | — | Base prompt override for this agent |
+| `agents.<name>.prompt_append` | string | — | Text to append to the base prompt |
+| `agents.<name>.disable` | boolean | — | Disable this specific agent |
 
 ---
 
