@@ -9,7 +9,7 @@ import {
 } from "../config";
 import type { TmuxConfig } from "../config/schema";
 import type { PluginConfig } from "../config";
-import { applyAgentVariant, resolveAgentVariant } from "../utils";
+import { applyAgentVariant, resolveAgentVariant, deleteSession } from "../utils";
 import { log } from "../shared/logger";
 
 const z = tool.schema;
@@ -20,37 +20,6 @@ type ToolContext = {
   agent: string;
   abort: AbortSignal;
 };
-
-async function deleteSession(client: any, serverUrl: URL, directory: string, sessionId: string) {
-  try {
-    // Try SDK v1 style first if available
-    if (typeof client.session?.delete === "function") {
-      await client.session.delete({ path: { id: sessionId } });
-      log(`[background-tools] deleted session via SDK`, { sessionId });
-      return;
-    }
-  } catch (err) {
-    log(`[background-tools] SDK delete failed, trying fetch`, { sessionId, error: String(err) });
-  }
-
-  try {
-    // Fallback to raw fetch if SDK method is missing or fails
-    const url = new URL(`/session/${sessionId}`, serverUrl);
-    const response = await fetch(url.toString(), {
-      method: "DELETE",
-      headers: {
-        "x-opencode-directory": directory,
-      },
-    });
-    if (response.ok) {
-      log(`[background-tools] deleted session via fetch`, { sessionId });
-    } else {
-      log(`[background-tools] fetch delete failed`, { sessionId, status: response.status });
-    }
-  } catch (err) {
-    log(`[background-tools] failed to delete session via all methods`, { sessionId, error: String(err) });
-  }
-}
 
 export function createBackgroundTools(
   ctx: PluginInput,

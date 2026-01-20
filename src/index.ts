@@ -17,7 +17,7 @@ import {
 import { loadPluginConfig, type TmuxConfig } from "./config";
 import { createBuiltinMcps } from "./mcp";
 import { createAutoUpdateCheckerHook, createPhaseReminderHook, createPostReadNudgeHook } from "./hooks";
-import { startTmuxCheck } from "./utils";
+import { startTmuxCheck, deleteSession } from "./utils";
 import { log } from "./shared/logger";
 
 const OhMyOpenCodeLite: Plugin = async (ctx) => {
@@ -134,49 +134,23 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
                 serverUrl: ctx.serverUrl.toString()
               });
               
-              // 1. Attempt deletion via all known SDK styles and raw API
-              try {
-                const client = ctx.client.session as any;
-                if (typeof client.delete === "function") {
-                  // Try v1 style
-                  await client.delete({ path: { id: sessionID } }).catch(() => {});
-                  // Try v2 style
-                  await client.delete({ sessionID }).catch(() => {});
-                  log(`[reaper] deletion calls sent via SDK`, { sessionID });
+              // 1. Attempt deletion via shared utility
+              await deleteSession(ctx.client, ctx.serverUrl, ctx.directory, sessionID);
+              
+              // 2. Notify TUI of completion with a toast
+              await ctx.client.tui.showToast({
+                body: {
+                  message: `Subagent session ${sessionID.slice(-4)} cleared`,
+                  variant: "info"
                 }
-                
-                // Always try raw fetch as a backup
-                const url = new URL(`/session/${sessionID}`, ctx.serverUrl);
-                const response = await fetch(url.toString(), {
-                  method: "DELETE",
-                  headers: { 
-                    "x-opencode-directory": ctx.directory,
-                    "Content-Type": "application/json" 
-                  },
-                });
-                
-                if (response.ok) {
-                  log(`[reaper] successfully deleted session via API`, { sessionID });
-                  
-                  // 2. Notify TUI of completion with a toast
-                  await ctx.client.tui.showToast({
-                    body: {
-                      message: `Subagent session ${sessionID.slice(-4)} cleared`,
-                      variant: "info"
-                    }
-                  }).catch(() => {});
+              }).catch(() => {});
 
-                  // 3. Force TUI to refresh its session view/navigation by re-selecting parent
-                  await (ctx.client.tui as any).selectSession({ body: { sessionID: parentID } }).catch(() => {});
-                } else {
-                  log(`[reaper] API deletion failed`, { sessionID, status: response.status });
-                }
-              } catch (err) {
-                log(`[reaper] deletion logic error`, { sessionID, error: String(err) });
-              }
+              // 3. Force TUI to refresh its session view/navigation by re-selecting parent
+              await (ctx.client.tui as any).selectSession({ body: { sessionID: parentID } }).catch(() => {});
             }
           } catch (err) {
-            // Session might already be gone
+            // Session might already be gone or other error
+            log(`[reaper] error during cleanup`, { sessionID, error: String(err) });
           }
         }, 2000); 
       }

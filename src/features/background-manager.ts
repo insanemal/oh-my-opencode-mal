@@ -58,37 +58,6 @@ export class BackgroundTaskManager {
     this.config = config;
   }
 
-  private async deleteSession(sessionId: string) {
-    try {
-      // Try SDK v1 style first if available
-      if (typeof (this.client.session as any).delete === "function") {
-        await (this.client.session as any).delete({ path: { id: sessionId } });
-        log(`[background-manager] deleted completed session via SDK`, { sessionId });
-        return;
-      }
-    } catch (err) {
-      log(`[background-manager] SDK delete failed, trying fetch`, { sessionId, error: String(err) });
-    }
-
-    try {
-      // Fallback to raw fetch if SDK method is missing or fails
-      const url = new URL(`/session/${sessionId}`, this.serverUrl);
-      const response = await fetch(url.toString(), {
-        method: "DELETE",
-        headers: {
-          "x-opencode-directory": this.directory,
-        },
-      });
-      if (response.ok) {
-        log(`[background-manager] deleted completed session via fetch`, { sessionId });
-      } else {
-        log(`[background-manager] fetch delete failed`, { sessionId, status: response.status });
-      }
-    } catch (err) {
-      log(`[background-manager] failed to delete session via all methods`, { sessionId, error: String(err) });
-    }
-  }
-
   async launch(opts: LaunchOptions): Promise<BackgroundTask> {
     const session = await this.client.session.create({
       body: {
@@ -257,7 +226,6 @@ export class BackgroundTaskManager {
       task.completedAt = new Date();
       
       log(`[background-manager] task completed`, { taskId: task.id, sessionId: task.sessionId });
-      await this.deleteSession(task.sessionId);
     } catch (error) {
       task.status = "failed";
       task.error = error instanceof Error ? error.message : String(error);
