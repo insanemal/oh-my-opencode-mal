@@ -1,6 +1,6 @@
 import type { AgentConfig as SDKAgentConfig } from "@opencode-ai/sdk";
 import { DEFAULT_MODELS, type PluginConfig, type AgentOverrideConfig } from "../config";
-import { createOrchestratorAgent, type AgentDefinition } from "./orchestrator";
+import { createOrchestratorAgent, type AgentDefinition, type OrchestratorOptions } from "./orchestrator";
 import { createOracleAgent } from "./oracle";
 import { createLibrarianAgent } from "./librarian";
 import { createExplorerAgent } from "./explorer";
@@ -102,7 +102,10 @@ export function createAgents(config?: PluginConfig): AgentDefinition[] {
   // 3. Create Orchestrator (with its own overrides)
   const orchestratorModel =
     getOverride(agentOverrides, "orchestrator")?.model ?? DEFAULT_MODELS["orchestrator"];
-  const orchestrator = createOrchestratorAgent(orchestratorModel);
+  const orchestrator = createOrchestratorAgent({ 
+    model: orchestratorModel, 
+    disabledAgents: disabledAgents.size > 0 ? Array.from(disabledAgents) : undefined 
+  });
   applyDefaultPermissions(orchestrator);
   const oOverride = getOverride(agentOverrides, "orchestrator");
   if (oOverride) {
