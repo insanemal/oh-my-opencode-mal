@@ -93,6 +93,19 @@ const AGENT_SECTIONS: Record<string, string> = {
   * implementation of pre-populated plans`,
 };
 
+const SKILLS_SECTION = `<Skills>
+Those skills are loaded via \`omos_skill\` tool (NOT the regular \`skill\` tool).
+Use \`omos_skill_mcp\` to invoke skill MCP tools after loading.
+
+@yagni-enforcement
+- Role: Code complexity analysis and YAGNI enforcement specialist
+- Use Case: Simplify code and ensure YAGNI principles are followed.
+
+@playwright
+- Role: Browser automation via Playwright MCP
+- Use Case: Browser-based tasks, scraping, screenshots, and UI testing.
+</Skills>`;
+
 const WORKFLOW_SECTION = `<Workflow>
 ## Phase 1: Understand
 Parse the request. Identify explicit and implicit requirements.
@@ -165,7 +178,9 @@ function buildOrchestratorPrompt(disabledAgents?: string[]): string {
   
   return `${ROLE_SECTION}
 
-${agentsSection}${WORKFLOW_SECTION}
+${agentsSection}${SKILLS_SECTION}
+
+${WORKFLOW_SECTION}
 
 ${COMMUNICATION_SECTION}`;
 }
