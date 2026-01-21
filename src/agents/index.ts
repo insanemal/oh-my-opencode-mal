@@ -11,16 +11,28 @@ export type { AgentDefinition } from "./orchestrator";
 
 type AgentFactory = (model: string) => AgentDefinition;
 
+// Backward Compatibility
+
 /** Map old agent names to new names for backward compatibility */
 const AGENT_ALIASES: Record<string, string> = {
   "explore": "explorer",
   "frontend-ui-ux-engineer": "designer",
 };
 
+/**
+ * Get agent override config by name, supporting backward-compatible aliases.
+ * Checks both the current name and any legacy alias names.
+ */
 function getOverride(overrides: Record<string, AgentOverrideConfig>, name: string): AgentOverrideConfig | undefined {
   return overrides[name] ?? overrides[Object.keys(AGENT_ALIASES).find(k => AGENT_ALIASES[k] === name) ?? ""];
 }
 
+// Agent Configuration Helpers
+
+/**
+ * Apply user-provided overrides to an agent's configuration.
+ * Supports overriding model, temperature, prompt, and appending to prompts.
+ */
 function applyOverrides(agent: AgentDefinition, override: AgentOverrideConfig): void {
   if (override.model) agent.config.model = override.model;
   if (override.temperature !== undefined) agent.config.temperature = override.temperature;
@@ -30,33 +42,50 @@ function applyOverrides(agent: AgentDefinition, override: AgentOverrideConfig): 
   }
 }
 
-type PermissionValue = "ask" | "allow" | "deny";
-
+/**
+ * Apply default permissions to an agent.
+ * Currently sets 'question' permission to 'allow' for all agents.
+ */
 function applyDefaultPermissions(agent: AgentDefinition): void {
-  const existing = (agent.config.permission ?? {}) as Record<string, PermissionValue>;
+  const existing = (agent.config.permission ?? {}) as Record<string, "ask" | "allow" | "deny">;
   agent.config.permission = { ...existing, question: "allow" } as SDKAgentConfig["permission"];
 }
 
-/** Constants for agent classification */
-export const PRIMARY_AGENT_NAMES = ["orchestrator"] as const;
+// Agent Classification
+
+const PRIMARY_AGENT_NAMES = ["orchestrator"] as const;
 export type PrimaryAgentName = (typeof PRIMARY_AGENT_NAMES)[number];
 
 export const SUBAGENT_NAMES = ["explorer", "librarian", "oracle", "designer", "fixer"] as const;
 export type SubagentName = (typeof SUBAGENT_NAMES)[number];
 
-export function getPrimaryAgentNames(): PrimaryAgentName[] {
-  return [...PRIMARY_AGENT_NAMES];
+/**
+ * Get list of primary agent names.
+ * @returns Readonly array containing only the orchestrator agent name
+ */
+export function getPrimaryAgentNames(): readonly PrimaryAgentName[] {
+  return PRIMARY_AGENT_NAMES;
 }
 
-export function getSubagentNames(): SubagentName[] {
-  return [...SUBAGENT_NAMES];
+/**
+ * Get list of all subagent names.
+ * @returns Readonly array of subagent names (excludes orchestrator)
+ */
+export function getSubagentNames(): readonly SubagentName[] {
+  return SUBAGENT_NAMES;
 }
 
+/**
+ * Type guard to check if a given agent name is a subagent.
+ * @param name - Agent name to check
+ * @returns True if the name is a valid subagent name
+ */
 export function isSubagent(name: string): name is SubagentName {
   return (SUBAGENT_NAMES as readonly string[]).includes(name);
 }
 
-/** Agent factories indexed by name */
+// Agent Factories
+
 const SUBAGENT_FACTORIES: Record<SubagentName, AgentFactory> = {
   explorer: createExplorerAgent,
   librarian: createLibrarianAgent,
@@ -65,11 +94,15 @@ const SUBAGENT_FACTORIES: Record<SubagentName, AgentFactory> = {
   fixer: createFixerAgent,
 };
 
-/** Get list of agent names */
-export function getAgentNames(): SubagentName[] {
-  return getSubagentNames();
-}
+// Public API
 
+/**
+ * Create all agent definitions with optional configuration overrides.
+ * Instantiates the orchestrator and all subagents, applying user config and defaults.
+ * 
+ * @param config - Optional plugin configuration with agent overrides
+ * @returns Array of agent definitions (orchestrator first, then subagents)
+ */
 export function createAgents(config?: PluginConfig): AgentDefinition[] {
   const agentOverrides = config?.agents ?? {};
 
@@ -109,6 +142,13 @@ export function createAgents(config?: PluginConfig): AgentDefinition[] {
   return [orchestrator, ...allSubAgents];
 }
 
+/**
+ * Get agent configurations formatted for the OpenCode SDK.
+ * Converts agent definitions to SDK config format and applies classification metadata.
+ * 
+ * @param config - Optional plugin configuration with agent overrides
+ * @returns Record mapping agent names to their SDK configurations
+ */
 export function getAgentConfigs(config?: PluginConfig): Record<string, SDKAgentConfig> {
   const agents = createAgents(config);
   return Object.fromEntries(
