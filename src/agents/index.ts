@@ -71,7 +71,6 @@ export function getAgentNames(): SubagentName[] {
 }
 
 export function createAgents(config?: PluginConfig): AgentDefinition[] {
-  const disabledAgents = new Set(config?.disabled_agents ?? []);
   const agentOverrides = config?.agents ?? {};
 
   // TEMP: If fixer has no config, inherit from librarian's model to avoid breaking
@@ -83,21 +82,19 @@ export function createAgents(config?: PluginConfig): AgentDefinition[] {
     return DEFAULT_MODELS[name];
   };
 
-  // 1. Gather all sub-agent proto-definitions
+  // 1. Gather all sub-agent definitions
   const protoSubAgents = (Object.entries(SUBAGENT_FACTORIES) as [SubagentName, AgentFactory][]).map(
     ([name, factory]) => factory(getModelForAgent(name))
   );
 
-  // 2. Apply common filtering and overrides
-  const allSubAgents = protoSubAgents
-    .filter((a) => !disabledAgents.has(a.name))
-    .map((agent) => {
-      const override = getOverride(agentOverrides, agent.name);
-      if (override) {
-        applyOverrides(agent, override);
-      }
-      return agent;
-    });
+  // 2. Apply overrides to each agent
+  const allSubAgents = protoSubAgents.map((agent) => {
+    const override = getOverride(agentOverrides, agent.name);
+    if (override) {
+      applyOverrides(agent, override);
+    }
+    return agent;
+  });
 
   // 3. Create Orchestrator (with its own overrides)
   const orchestratorModel =

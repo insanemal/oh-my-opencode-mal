@@ -13,11 +13,11 @@ function loadConfigFromPath(configPath: string): PluginConfig | null {
       const content = fs.readFileSync(configPath, "utf-8");
       const rawConfig = JSON.parse(content);
       const result = PluginConfigSchema.safeParse(rawConfig);
-      
+
       if (!result.success) {
         return null;
       }
-      
+
       return result.data;
     }
   } catch {
@@ -29,12 +29,12 @@ function loadConfigFromPath(configPath: string): PluginConfig | null {
 function deepMerge<T extends Record<string, unknown>>(base?: T, override?: T): T | undefined {
   if (!base) return override;
   if (!override) return base;
-  
+
   const result = { ...base } as T;
   for (const key of Object.keys(override) as (keyof T)[]) {
     const baseVal = base[key];
     const overrideVal = override[key];
-    
+
     if (
       typeof baseVal === "object" && baseVal !== null &&
       typeof overrideVal === "object" && overrideVal !== null &&
@@ -57,11 +57,11 @@ export function loadPluginConfig(directory: string): PluginConfig {
     "opencode",
     "oh-my-opencode-slim.json"
   );
-  
+
   const projectConfigPath = path.join(directory, ".opencode", "oh-my-opencode-slim.json");
 
   let config: PluginConfig = loadConfigFromPath(userConfigPath) ?? {};
-  
+
   const projectConfig = loadConfigFromPath(projectConfigPath);
   if (projectConfig) {
     config = {
@@ -69,12 +69,6 @@ export function loadPluginConfig(directory: string): PluginConfig {
       ...projectConfig,
       agents: deepMerge(config.agents, projectConfig.agents),
       tmux: deepMerge(config.tmux, projectConfig.tmux),
-      disabled_agents: [
-        ...new Set([
-          ...(config.disabled_agents ?? []),
-          ...(projectConfig.disabled_agents ?? []),
-        ]),
-      ],
     };
   }
 

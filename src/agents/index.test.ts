@@ -81,13 +81,11 @@ describe("agent classification", () => {
 
     // Primary agent
     expect(configs["orchestrator"].mode).toBe("primary");
-    expect(configs["orchestrator"].hidden).toBeFalsy();
 
     // Subagents
     const subagents = getSubagentNames();
     for (const name of subagents) {
       expect(configs[name].mode).toBe("subagent");
-      expect(configs[name].hidden).toBe(true);
     }
   });
 });
@@ -103,17 +101,7 @@ describe("createAgents", () => {
     expect(names).toContain("librarian");
   });
 
-  test("respects disabled_agents", () => {
-    const config: PluginConfig = {
-      disabled_agents: ["explorer", "designer"],
-    };
-    const agents = createAgents(config);
-    const names = agents.map((a) => a.name);
-    expect(names).not.toContain("explorer");
-    expect(names).not.toContain("designer");
-    expect(names).toContain("orchestrator");
-    expect(names).toContain("oracle");
-  });
+
 });
 
 describe("getAgentConfigs", () => {

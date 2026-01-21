@@ -40,7 +40,6 @@ export type McpName = z.infer<typeof McpNameSchema>;
 // Main plugin config
 export const PluginConfigSchema = z.object({
   agents: z.record(z.string(), AgentOverrideConfigSchema).optional(),
-  disabled_agents: z.array(z.string()).optional(),
   disabled_mcps: z.array(z.string()).optional(),
   tmux: TmuxConfigSchema.optional(),
 });
