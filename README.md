@@ -53,6 +53,8 @@
 - [⚙️ **Configuration**](#configuration)
   - [Files You Edit](#files-you-edit)
   - [Plugin Config](#plugin-config-oh-my-opencode-slimjson)
+    - [Presets](#presets)
+    - [Option Reference](#option-reference)
 - [🗑️ **Uninstallation**](#uninstallation)
 
 ---
