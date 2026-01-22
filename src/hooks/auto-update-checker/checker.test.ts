@@ -1,7 +1,6 @@
 import { describe, expect, test, mock } from "bun:test"
 import { extractChannel, getLocalDevVersion, findPluginEntry } from "./checker"
 import * as fs from "node:fs"
-import * as path from "node:path"
 
 // Mock the dependencies
 mock.module("./constants", () => ({

@@ -10,7 +10,7 @@ import {
 import type { TmuxConfig } from "../config/schema";
 import type { PluginConfig } from "../config";
 import { applyAgentVariant, resolveAgentVariant } from "../utils";
-import { log } from "../shared/logger";
+import { log } from "../utils/logger";
 
 const z = tool.schema;
 

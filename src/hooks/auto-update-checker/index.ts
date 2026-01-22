@@ -2,7 +2,7 @@ import type { PluginInput } from "@opencode-ai/plugin"
 import { getCachedVersion, getLocalDevVersion, findPluginEntry, getLatestVersion, updatePinnedVersion, extractChannel } from "./checker"
 import { invalidatePackage } from "./cache"
 import { PACKAGE_NAME } from "./constants"
-import { log } from "../../shared/logger"
+import { log } from "../../utils/logger"
 import type { AutoUpdateCheckerOptions } from "./types"
 
 /**

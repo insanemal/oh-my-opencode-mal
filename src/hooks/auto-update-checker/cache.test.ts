@@ -1,7 +1,6 @@
 import { describe, expect, test, mock, beforeEach } from "bun:test"
 import { invalidatePackage } from "./cache"
 import * as fs from "node:fs"
-import * as path from "node:path"
 
 // Mock internal dependencies
 mock.module("./constants", () => ({

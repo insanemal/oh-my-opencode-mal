@@ -11,7 +11,7 @@ import {
   USER_OPENCODE_CONFIG,
   USER_OPENCODE_CONFIG_JSONC,
 } from "./constants"
-import { log } from "../../shared/logger"
+import { log } from "../../utils/logger"
 import { stripJsonComments } from "../../cli/config-manager"
 
 /**

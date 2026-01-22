@@ -1,7 +1,7 @@
 import type { PluginInput } from "@opencode-ai/plugin";
 import { spawnTmuxPane, closeTmuxPane, isInsideTmux } from "../utils/tmux";
 import type { TmuxConfig } from "../config/schema";
-import { log } from "../shared/logger";
+import { log } from "../utils/logger";
 import { POLL_INTERVAL_BACKGROUND_MS } from "../config";
 
 type OpencodeClient = PluginInput["client"];

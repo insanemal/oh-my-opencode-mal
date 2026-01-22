@@ -17,7 +17,7 @@ import { POLL_INTERVAL_BACKGROUND_MS, POLL_INTERVAL_SLOW_MS } from "../config";
 import type { TmuxConfig } from "../config/schema";
 import type { PluginConfig } from "../config";
 import { applyAgentVariant, resolveAgentVariant } from "../utils";
-import { log } from "../shared/logger";
+import { log } from "../utils/logger";
 type PromptBody = {
   messageID?: string;
   model?: { providerID: string; modelID: string };
