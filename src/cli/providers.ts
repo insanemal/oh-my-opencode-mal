@@ -61,7 +61,7 @@ export const MODEL_MAPPINGS = {
     librarian: "opencode/glm-4.7-free",
     explorer: "opencode/glm-4.7-free",
     designer: "opencode/glm-4.7-free",
-    fixer: "openai/gpt-5.1-codex-mini",
+    fixer: "opencode/glm-4.7-free",
   },
 } as const;
 
