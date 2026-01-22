@@ -475,35 +475,35 @@ The installer generates presets for different provider combinations. Switch betw
   "presets": {
     "antigravity": {
       "orchestrator": { "model": "google/claude-opus-4-5-thinking", "skills": ["*"] },
-      "oracle": { "model": "google/claude-opus-4-5-thinking", "skills": [] },
-      "librarian": { "model": "google/gemini-3-flash", "skills": [] },
-      "explorer": { "model": "google/gemini-3-flash", "skills": [] },
-      "designer": { "model": "google/gemini-3-flash", "skills": ["playwright"] },
-      "fixer": { "model": "google/gemini-3-flash", "skills": [] }
+      "oracle": { "model": "google/claude-opus-4-5-thinking", "variant": "high", "skills": [] },
+      "librarian": { "model": "google/gemini-3-flash", "variant": "low", "skills": [] },
+      "explorer": { "model": "google/gemini-3-flash", "variant": "low", "skills": [] },
+      "designer": { "model": "google/gemini-3-flash", "variant": "medium", "skills": ["playwright"] },
+      "fixer": { "model": "google/gemini-3-flash", "variant": "low", "skills": [] }
     },
     "openai": {
       "orchestrator": { "model": "openai/gpt-5.2-codex", "skills": ["*"] },
-      "oracle": { "model": "openai/gpt-5.2-codex", "skills": [] },
-      "librarian": { "model": "openai/gpt-5.1-codex-mini", "skills": [] },
-      "explorer": { "model": "openai/gpt-5.1-codex-mini", "skills": [] },
-      "designer": { "model": "openai/gpt-5.1-codex-mini", "skills": ["playwright"] },
-      "fixer": { "model": "openai/gpt-5.1-codex-mini", "skills": [] }
+      "oracle": { "model": "openai/gpt-5.2-codex", "variant": "high", "skills": [] },
+      "librarian": { "model": "openai/gpt-5.1-codex-mini", "variant": "low", "skills": [] },
+      "explorer": { "model": "openai/gpt-5.1-codex-mini", "variant": "low", "skills": [] },
+      "designer": { "model": "openai/gpt-5.1-codex-mini", "variant": "medium", "skills": ["playwright"] },
+      "fixer": { "model": "openai/gpt-5.1-codex-mini", "variant": "low", "skills": [] }
     },
     "zen-free": {
       "orchestrator": { "model": "opencode/glm-4.7-free", "skills": ["*"] },
-      "oracle": { "model": "opencode/glm-4.7-free", "skills": [] },
-      "librarian": { "model": "opencode/grok-code", "skills": [] },
-      "explorer": { "model": "opencode/grok-code", "skills": [] },
-      "designer": { "model": "opencode/grok-code", "skills": ["playwright"] },
-      "fixer": { "model": "opencode/grok-code", "skills": [] }
+      "oracle": { "model": "opencode/glm-4.7-free", "variant": "high", "skills": [] },
+      "librarian": { "model": "opencode/grok-code", "variant": "low", "skills": [] },
+      "explorer": { "model": "opencode/grok-code", "variant": "low", "skills": [] },
+      "designer": { "model": "opencode/grok-code", "variant": "medium", "skills": ["playwright"] },
+      "fixer": { "model": "opencode/grok-code", "variant": "low", "skills": [] }
     },
     "antigravity-openai": {
       "orchestrator": { "model": "google/claude-opus-4-5-thinking", "skills": ["*"] },
-      "oracle": { "model": "openai/gpt-5.2-codex", "skills": [] },
-      "librarian": { "model": "google/gemini-3-flash", "skills": [] },
-      "explorer": { "model": "google/gemini-3-flash", "skills": [] },
-      "designer": { "model": "google/gemini-3-flash", "skills": ["playwright"] },
-      "fixer": { "model": "google/gemini-3-flash", "skills": [] }
+      "oracle": { "model": "openai/gpt-5.2-codex", "variant": "high", "skills": [] },
+      "librarian": { "model": "google/gemini-3-flash", "variant": "low", "skills": [] },
+      "explorer": { "model": "google/gemini-3-flash", "variant": "low", "skills": [] },
+      "designer": { "model": "google/gemini-3-flash", "variant": "medium", "skills": ["playwright"] },
+      "fixer": { "model": "google/gemini-3-flash", "variant": "low", "skills": [] }
     }
   },
   "tmux": {
@@ -524,16 +524,6 @@ The installer generates presets for different provider combinations. Switch betw
 | `zen-free` | Free models (GLM-4.7 + Grok Code) |
 | `antigravity-openai` | Mixed: Antigravity for most agents, OpenAI for Oracle |
 
-**Switching Presets:**
-
-Simply change the `preset` field to switch between provider configurations:
-
-```json
-{
-  "preset": "openai"  // or "antigravity", "zen-free", "antigravity-openai"
-}
-```
-
 **Environment Variable Override:**
 
 You can override the preset using an environment variable:
@@ -543,11 +533,6 @@ export OH_MY_OPENCODE_SLIM_PRESET=openai
 opencode
 ```
 
-This is useful for:
-- Testing different presets without editing config files
-- CI/CD pipelines with different provider configurations
-- Temporary preset switching
-
 The environment variable takes precedence over the `preset` field in the config file.
 
 #### Option Reference
@@ -556,11 +541,16 @@ The environment variable takes precedence over the `preset` field in the config 
 |--------|------|---------|-------------|
 | `preset` | string | - | Name of the preset to use (e.g., `"antigravity"`, `"openai"`) |
 | `presets` | object | - | Named preset configurations containing agent mappings |
-| `OH_MY_OPENCODE_SLIM_PRESET` | string | - | Environment variable to override the `preset` field |
+| `presets.<name>.<agent>.model` | string | - | Model ID for the agent (e.g., `"google/claude-opus-4-5-thinking"`) |
+| `presets.<name>.<agent>.temperature` | number | - | Temperature setting (0-2) for the agent |
+| `presets.<name>.<agent>.variant` | string | - | Agent variant for reasoning effort (e.g., `"low"`, `"medium"`, `"high"`) |
+| `presets.<name>.<agent>.skills` | string[] | - | Array of skill names the agent can use (`"*"` for all) |
 | `tmux.enabled` | boolean | `false` | Enable tmux pane spawning for sub-agents |
 | `tmux.layout` | string | `"main-vertical"` | Layout preset: `main-vertical`, `main-horizontal`, `tiled`, `even-horizontal`, `even-vertical` |
 | `tmux.main_pane_size` | number | `60` | Main pane size as percentage (20-80) |
 | `disabled_mcps` | string[] | `[]` | MCP server IDs to disable (e.g., `"websearch"`) |
+
+> **Note:** Agent configuration should be defined within `presets`. The root-level `agents` field is deprecated.
 
 ---
 

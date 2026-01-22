@@ -14,8 +14,10 @@ describe("providers", () => {
 
     expect(config.preset).toBe("antigravity")
     const agents = (config.presets as any).antigravity
-    expect(agents.orchestrator.model).toBe(MODEL_MAPPINGS.antigravity.orchestrator)
-    expect(agents.fixer.model).toBe(MODEL_MAPPINGS.antigravity.fixer)
+    expect(agents.orchestrator.model).toBe(MODEL_MAPPINGS.antigravity.orchestrator.model)
+    expect(agents.orchestrator.variant).toBeUndefined()
+    expect(agents.fixer.model).toBe(MODEL_MAPPINGS.antigravity.fixer.model)
+    expect(agents.fixer.variant).toBe(MODEL_MAPPINGS.antigravity.fixer.variant)
   })
 
   test("generateLiteConfig overrides oracle with openai if available and antigravity is used", () => {
@@ -28,8 +30,10 @@ describe("providers", () => {
 
     expect(config.preset).toBe("antigravity-openai")
     const agents = (config.presets as any)["antigravity-openai"]
-    expect(agents.orchestrator.model).toBe(MODEL_MAPPINGS.antigravity.orchestrator)
-    expect(agents.oracle.model).toBe(MODEL_MAPPINGS.openai.oracle)
+    expect(agents.orchestrator.model).toBe(MODEL_MAPPINGS.antigravity.orchestrator.model)
+    expect(agents.orchestrator.variant).toBeUndefined()
+    expect(agents.oracle.model).toBe("openai/gpt-5.2-codex")
+    expect(agents.oracle.variant).toBe("high")
   })
 
   test("generateLiteConfig uses openai if no antigravity", () => {
@@ -42,7 +46,8 @@ describe("providers", () => {
 
     expect(config.preset).toBe("openai")
     const agents = (config.presets as any).openai
-    expect(agents.orchestrator.model).toBe(MODEL_MAPPINGS.openai.orchestrator)
+    expect(agents.orchestrator.model).toBe(MODEL_MAPPINGS.openai.orchestrator.model)
+    expect(agents.orchestrator.variant).toBeUndefined()
   })
 
   test("generateLiteConfig uses zen-free if no antigravity or openai", () => {
@@ -55,7 +60,8 @@ describe("providers", () => {
 
     expect(config.preset).toBe("zen-free")
     const agents = (config.presets as any)["zen-free"]
-    expect(agents.orchestrator.model).toBe(MODEL_MAPPINGS["zen-free"].orchestrator)
+    expect(agents.orchestrator.model).toBe(MODEL_MAPPINGS["zen-free"].orchestrator.model)
+    expect(agents.orchestrator.variant).toBeUndefined()
   })
 
   test("generateLiteConfig enables tmux when requested", () => {
