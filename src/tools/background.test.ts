@@ -353,10 +353,9 @@ describe("Background Tools", () => {
     });
 
     test("respects tmux enabled delay", async () => {
-        const start = Date.now();
+        const setTimeoutSpy = spyOn(global, "setTimeout");
         await createSession(ctx, { sessionID: "p1" } as any, "desc", "agent", { enabled: true } as any);
-        const duration = Date.now() - start;
-        expect(duration).toBeGreaterThanOrEqual(500);
+        expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 500);
     });
   });
 
