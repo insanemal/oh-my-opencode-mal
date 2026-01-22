@@ -93,21 +93,23 @@ export function generateLiteConfig(installConfig: InstallConfig): Record<string,
     (config.presets as Record<string, unknown>)[providerName] = agents;
   }
 
-  // Handle mixed configuration (antigravity + openai)
+  // Always add antigravity-openai preset
+  const mixedAgents: Record<string, { model: string; variant?: string }> = { ...MODEL_MAPPINGS.antigravity };
+  mixedAgents.oracle = { model: "openai/gpt-5.2-codex", variant: "high" };
+  const agents: Record<string, { model: string; variant?: string; skills: string[] }> = Object.fromEntries(
+    Object.entries(mixedAgents).map(([k, v]) => [
+      k,
+      {
+        model: v.model,
+        variant: v.variant,
+        skills: DEFAULT_AGENT_SKILLS[k as keyof typeof DEFAULT_AGENT_SKILLS] ?? [],
+      },
+    ])
+  );
+  (config.presets as Record<string, unknown>)["antigravity-openai"] = agents;
+
+  // Set default preset based on user choice
   if (installConfig.hasAntigravity && installConfig.hasOpenAI) {
-    const mixedAgents: Record<string, { model: string; variant?: string }> = { ...MODEL_MAPPINGS.antigravity };
-    mixedAgents.oracle = { model: "openai/gpt-5.2-codex", variant: "high" };
-    const agents: Record<string, { model: string; variant?: string; skills: string[] }> = Object.fromEntries(
-      Object.entries(mixedAgents).map(([k, v]) => [
-        k,
-        {
-          model: v.model,
-          variant: v.variant,
-          skills: DEFAULT_AGENT_SKILLS[k as keyof typeof DEFAULT_AGENT_SKILLS] ?? [],
-        },
-      ])
-    );
-    (config.presets as Record<string, unknown>)["antigravity-openai"] = agents;
     config.preset = "antigravity-openai";
   }
 

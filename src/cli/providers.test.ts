@@ -20,7 +20,7 @@ describe("providers", () => {
     expect(agents.fixer.variant).toBe(MODEL_MAPPINGS.antigravity.fixer.variant)
   })
 
-  test("generateLiteConfig overrides oracle with openai if available and antigravity is used", () => {
+  test("generateLiteConfig always includes antigravity-openai preset", () => {
     const config = generateLiteConfig({
       hasAntigravity: true,
       hasOpenAI: true,
@@ -34,6 +34,20 @@ describe("providers", () => {
     expect(agents.orchestrator.variant).toBeUndefined()
     expect(agents.oracle.model).toBe("openai/gpt-5.2-codex")
     expect(agents.oracle.variant).toBe("high")
+  })
+
+  test("generateLiteConfig includes antigravity-openai preset even with only antigravity", () => {
+    const config = generateLiteConfig({
+      hasAntigravity: true,
+      hasOpenAI: false,
+      hasOpencodeZen: false,
+      hasTmux: false,
+    })
+
+    expect(config.preset).toBe("antigravity")
+    const agents = (config.presets as any)["antigravity-openai"]
+    expect(agents).toBeDefined()
+    expect(agents.oracle.model).toBe("openai/gpt-5.2-codex")
   })
 
   test("generateLiteConfig uses openai if no antigravity", () => {
