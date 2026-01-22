@@ -564,3 +564,98 @@ describe("environment variable preset override", () => {
     expect(warningMessage).toContain('config-preset')
   })
 })
+
+describe("loadAgentPrompt", () => {
+  let tempDir: string
+  let originalEnv: typeof process.env
+
+  beforeEach(() => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "prompt-test-"))
+    originalEnv = { ...process.env }
+    process.env.XDG_CONFIG_HOME = tempDir
+  })
+
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true })
+    process.env = originalEnv
+  })
+
+  test("returns empty object when no prompt files exist", () => {
+    const result = loadAgentPrompt("oracle")
+    expect(result).toEqual({})
+  })
+
+  test("loads replacement prompt from {agent}.md", () => {
+    const promptsDir = path.join(tempDir, "opencode", "oh-my-opencode-slim")
+    fs.mkdirSync(promptsDir, { recursive: true })
+    fs.writeFileSync(path.join(promptsDir, "oracle.md"), "replacement prompt")
+
+    const result = loadAgentPrompt("oracle")
+    expect(result.prompt).toBe("replacement prompt")
+    expect(result.appendPrompt).toBeUndefined()
+  })
+
+  test("loads append prompt from {agent}_append.md", () => {
+    const promptsDir = path.join(tempDir, "opencode", "oh-my-opencode-slim")
+    fs.mkdirSync(promptsDir, { recursive: true })
+    fs.writeFileSync(path.join(promptsDir, "oracle_append.md"), "append prompt")
+
+    const result = loadAgentPrompt("oracle")
+    expect(result.prompt).toBeUndefined()
+    expect(result.appendPrompt).toBe("append prompt")
+  })
+
+  test("loads both replacement and append prompts", () => {
+    const promptsDir = path.join(tempDir, "opencode", "oh-my-opencode-slim")
+    fs.mkdirSync(promptsDir, { recursive: true })
+    fs.writeFileSync(path.join(promptsDir, "oracle.md"), "replacement prompt")
+    fs.writeFileSync(path.join(promptsDir, "oracle_append.md"), "append prompt")
+
+    const result = loadAgentPrompt("oracle")
+    expect(result.prompt).toBe("replacement prompt")
+    expect(result.appendPrompt).toBe("append prompt")
+  })
+
+  test("handles file read errors gracefully", () => {
+    const promptsDir = path.join(tempDir, "opencode", "oh-my-opencode-slim")
+    fs.mkdirSync(promptsDir, { recursive: true })
+    const promptPath = path.join(promptsDir, "error-agent.md")
+    fs.writeFileSync(promptPath, "content")
+
+    const consoleWarnSpy = spyOn(console, "warn")
+    
+    // Use a unique agent name and check for it specifically
+    const originalReadFileSync = fs.readFileSync
+    const readSpy = spyOn(fs, "readFileSync").mockImplementation((p: any, o: any) => {
+      if (typeof p === 'string' && p.includes("error-agent.md")) {
+        throw new Error("Read error")
+      }
+      return originalReadFileSync(p, o)
+    })
+    
+    try {
+      const result = loadAgentPrompt("error-agent")
+      expect(result.prompt).toBeUndefined()
+      
+      const warningFound = consoleWarnSpy.mock.calls.some(call => 
+        (call[0] as string).includes("Error reading prompt file")
+      )
+      expect(warningFound).toBe(true)
+    } finally {
+      readSpy.mockRestore()
+    }
+  })
+
+  test("works with XDG_CONFIG_HOME environment variable", () => {
+    const customConfigHome = path.join(tempDir, "custom-xdg")
+    process.env.XDG_CONFIG_HOME = customConfigHome
+    
+    const promptsDir = path.join(customConfigHome, "opencode", "oh-my-opencode-slim")
+    fs.mkdirSync(promptsDir, { recursive: true })
+    fs.writeFileSync(path.join(promptsDir, "xdg-agent.md"), "xdg prompt")
+
+    const result = loadAgentPrompt("xdg-agent")
+    expect(result.prompt).toBe("xdg prompt")
+  })
+})
+
