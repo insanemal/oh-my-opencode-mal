@@ -1,4 +1,4 @@
-import type { AgentDefinition } from "./orchestrator";
+import type { AgentDefinition } from './orchestrator';
 
 const ORACLE_PROMPT = `You are Oracle - a strategic technical advisor.
 
@@ -21,18 +21,23 @@ const ORACLE_PROMPT = `You are Oracle - a strategic technical advisor.
 - Focus on strategy, not execution
 - Point to specific files/lines when relevant`;
 
-export function createOracleAgent(model: string, customPrompt?: string, customAppendPrompt?: string): AgentDefinition {
+export function createOracleAgent(
+  model: string,
+  customPrompt?: string,
+  customAppendPrompt?: string,
+): AgentDefinition {
   let prompt = ORACLE_PROMPT;
 
   if (customPrompt) {
     prompt = customPrompt;
   } else if (customAppendPrompt) {
-    prompt = ORACLE_PROMPT + "\n\n" + customAppendPrompt;
+    prompt = `${ORACLE_PROMPT}\n\n${customAppendPrompt}`;
   }
 
   return {
-    name: "oracle",
-    description: "Strategic technical advisor. Use for architecture decisions, complex debugging, code review, and engineering guidance.",
+    name: 'oracle',
+    description:
+      'Strategic technical advisor. Use for architecture decisions, complex debugging, code review, and engineering guidance.',
     config: {
       model,
       temperature: 0.1,
@@ -40,4 +45,3 @@ export function createOracleAgent(model: string, customPrompt?: string, customAp
     },
   };
 }
-
