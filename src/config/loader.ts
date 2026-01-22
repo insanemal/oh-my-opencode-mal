@@ -119,10 +119,17 @@ export function loadPluginConfig(directory: string): PluginConfig {
   }
 
   // Resolve preset and merge with root agents
-  if (config.preset && config.presets?.[config.preset]) {
-    const preset = config.presets[config.preset];
-    // Merge preset agents with root agents (root overrides)
-    config.agents = deepMerge(preset, config.agents);
+  if (config.preset) {
+    const preset = config.presets?.[config.preset];
+    if (preset) {
+      // Merge preset agents with root agents (root overrides)
+      config.agents = deepMerge(preset, config.agents);
+    } else {
+      // Preset name specified but doesn't exist - warn user
+      const presetSource = envPreset === config.preset ? "environment variable" : "config file";
+      const availablePresets = config.presets ? Object.keys(config.presets).join(", ") : "none";
+      console.warn(`[oh-my-opencode-slim] Preset "${config.preset}" not found (from ${presetSource}). Available presets: ${availablePresets}`);
+    }
   }
 
   return config;

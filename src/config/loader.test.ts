@@ -391,6 +391,52 @@ describe("preset resolution", () => {
     // Should return empty config due to validation failure
     expect(loadPluginConfig(projectDir)).toEqual({})
   })
+
+  test("nonexistent preset from config warns and falls back to root agents", () => {
+    const projectDir = path.join(tempDir, "project")
+    const projectConfigDir = path.join(projectDir, ".opencode")
+    fs.mkdirSync(projectConfigDir, { recursive: true })
+    fs.writeFileSync(
+      path.join(projectConfigDir, "oh-my-opencode-slim.json"),
+      JSON.stringify({
+        preset: "nonexistent",
+        presets: {
+          other: { oracle: { model: "other" } }
+        },
+        agents: { oracle: { model: "root" } }
+      })
+    )
+
+    const consoleWarnSpy = spyOn(console, "warn")
+    const config = loadPluginConfig(projectDir)
+    expect(config.agents?.oracle?.model).toBe("root")
+    expect(consoleWarnSpy).toHaveBeenCalled()
+    const warningMessage = consoleWarnSpy.mock.calls[0][0] as string
+    expect(warningMessage).toContain('Preset "nonexistent" not found')
+    expect(warningMessage).toContain('Available presets: other')
+  })
+
+  test("nonexistent preset with no root agents returns empty agents", () => {
+    const projectDir = path.join(tempDir, "project")
+    const projectConfigDir = path.join(projectDir, ".opencode")
+    fs.mkdirSync(projectConfigDir, { recursive: true })
+    fs.writeFileSync(
+      path.join(projectConfigDir, "oh-my-opencode-slim.json"),
+      JSON.stringify({
+        preset: "nonexistent",
+        presets: {
+          other: { oracle: { model: "other" } }
+        }
+      })
+    )
+
+    const consoleWarnSpy = spyOn(console, "warn")
+    const config = loadPluginConfig(projectDir)
+    expect(config.agents).toBeUndefined()
+    expect(consoleWarnSpy).toHaveBeenCalled()
+    const warningMessage = consoleWarnSpy.mock.calls[0][0] as string
+    expect(warningMessage).toContain('Preset "nonexistent" not found')
+  })
 })
 
 describe("environment variable preset override", () => {
@@ -486,5 +532,35 @@ describe("environment variable preset override", () => {
     const config = loadPluginConfig(projectDir)
     expect(config.preset).toBe("config-preset")
     expect(config.agents?.oracle?.model).toBe("config-model")
+  })
+
+  test("Env var with nonexistent preset warns and falls back", () => {
+    const projectDir = path.join(tempDir, "project")
+    const projectConfigDir = path.join(projectDir, ".opencode")
+    fs.mkdirSync(projectConfigDir, { recursive: true })
+    fs.writeFileSync(
+      path.join(projectConfigDir, "oh-my-opencode-slim.json"),
+      JSON.stringify({
+        preset: "config-preset",
+        presets: {
+          "config-preset": { oracle: { model: "config-model" } }
+        },
+        agents: { oracle: { model: "fallback" } }
+      })
+    )
+
+    process.env.OH_MY_OPENCODE_SLIM_PRESET = "typo-preset"
+    const consoleWarnSpy = spyOn(console, "warn")
+    const config = loadPluginConfig(projectDir)
+    expect(config.preset).toBe("typo-preset")
+    expect(config.agents?.oracle?.model).toBe("fallback")
+    expect(consoleWarnSpy).toHaveBeenCalled()
+    const calls = consoleWarnSpy.mock.calls as string[][]
+    const warningMessage = calls.find(call => 
+      call[0]?.includes("typo-preset")
+    )?.[0] || ""
+    expect(warningMessage).toContain('Preset "typo-preset" not found')
+    expect(warningMessage).toContain('environment variable')
+    expect(warningMessage).toContain('config-preset')
   })
 })

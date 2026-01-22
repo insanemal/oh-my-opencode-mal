@@ -82,7 +82,7 @@ function handleStepResult(result: ConfigMergeResult, successMsg: string): boolea
 
 function formatConfigSummary(config: InstallConfig): string {
   const liteConfig = generateLiteConfig(config)
-  const preset = liteConfig.preset as string
+  const preset = (liteConfig.preset as string) || "unknown"
 
   const lines: string[] = []
   lines.push(`${BOLD}Configuration Summary${RESET}`)
@@ -97,9 +97,9 @@ function formatConfigSummary(config: InstallConfig): string {
 
 function printAgentModels(config: InstallConfig): void {
   const liteConfig = generateLiteConfig(config)
-  const presetName = liteConfig.preset as string
+  const presetName = (liteConfig.preset as string) || "unknown"
   const presets = liteConfig.presets as Record<string, any>
-  const agents = presets[presetName] as Record<string, { model: string; skills: string[] }>
+  const agents = presets?.[presetName] as Record<string, { model: string; skills: string[] }>
 
   if (!agents || Object.keys(agents).length === 0) return
 
