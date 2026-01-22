@@ -7,7 +7,7 @@ import {
   pollSession, 
   extractResponseText 
 } from "./background.ts";
-import { BackgroundTaskManager } from "../features/background-manager";
+import { BackgroundTaskManager } from "../background/background-manager";
 import type { PluginInput } from "@opencode-ai/plugin";
 import { 
   POLL_INTERVAL_MS, 
