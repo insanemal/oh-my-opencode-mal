@@ -17,6 +17,16 @@ export const DEFAULT_AGENT_SKILLS: Record<AgentName, string[]> = {
   fixer: [],
 };
 
+/** Default MCPs per agent - "*" means all MCPs */
+export const DEFAULT_AGENT_MCPS: Record<AgentName, string[]> = {
+  orchestrator: ['websearch'],
+  designer: ['websearch'],
+  oracle: ['websearch', 'context7', 'grep_app'],
+  librarian: ['websearch', 'context7', 'grep_app'],
+  explorer: ['websearch'],
+  fixer: ['websearch'],
+};
+
 const YAGNI_TEMPLATE = `# YAGNI Enforcement Skill
 
 You are a code simplicity expert specializing in minimalism and the YAGNI (You Aren't Gonna Need It) principle. Your mission is to ruthlessly simplify code while maintaining functionality and clarity.
@@ -204,6 +214,24 @@ export function canAgentUseSkill(
 }
 
 /**
+ * Check if an agent can use a specific MCP
+ */
+export function canAgentUseMcp(
+  agentName: string,
+  mcpName: string,
+  config?: PluginConfig,
+): boolean {
+  const agentMcps = getAgentMcpList(agentName, config);
+
+  // "*" means all MCPs
+  if (agentMcps.includes('*')) {
+    return true;
+  }
+
+  return agentMcps.includes(mcpName);
+}
+
+/**
  * Get the skill list for an agent (from config or defaults)
  * Supports backward compatibility with old agent names via AGENT_ALIASES
  */
@@ -222,4 +250,25 @@ function getAgentSkillList(agentName: string, config?: PluginConfig): string[] {
   // Fall back to defaults
   const defaultSkills = DEFAULT_AGENT_SKILLS[agentName as AgentName];
   return defaultSkills ?? [];
+}
+
+/**
+ * Get the MCP list for an agent (from config or defaults)
+ * Supports backward compatibility with old agent names via AGENT_ALIASES
+ */
+export function getAgentMcpList(agentName: string, config?: PluginConfig): string[] {
+  // Check if config has override for this agent (new name first, then alias)
+  const agentConfig =
+    config?.agents?.[agentName] ??
+    config?.agents?.[
+      Object.keys(AGENT_ALIASES).find((k) => AGENT_ALIASES[k] === agentName) ??
+        ''
+    ];
+  if (agentConfig?.mcps !== undefined) {
+    return agentConfig.mcps;
+  }
+
+  // Fall back to defaults
+  const defaultMcps = DEFAULT_AGENT_MCPS[agentName as AgentName];
+  return defaultMcps ?? [];
 }

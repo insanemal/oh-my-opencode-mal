@@ -6,6 +6,7 @@ import type {
 import { type ToolDefinition, tool } from '@opencode-ai/plugin';
 import type { PluginConfig } from '../../config/schema';
 import {
+  canAgentUseMcp,
   canAgentUseSkill,
   getBuiltinSkills,
   getSkillByName,
@@ -47,6 +48,8 @@ async function formatMcpCapabilities(
   skill: SkillDefinition,
   manager: SkillMcpManager,
   sessionId: string,
+  agentName: string,
+  pluginConfig?: PluginConfig,
 ): Promise<string | null> {
   if (!skill.mcpConfig || Object.keys(skill.mcpConfig).length === 0) {
     return null;
@@ -55,6 +58,11 @@ async function formatMcpCapabilities(
   const sections: string[] = ['', '## Available MCP Servers', ''];
 
   for (const [serverName, config] of Object.entries(skill.mcpConfig)) {
+    // Check if this agent can use this MCP
+    if (!canAgentUseMcp(agentName, serverName, pluginConfig)) {
+      continue; // Skip this MCP - agent doesn't have permission
+    }
+
     const info = {
       serverName,
       skillName: skill.name,
@@ -175,6 +183,8 @@ export function createSkillTools(
           skillDefinition,
           manager,
           sessionId,
+          agentName,
+          pluginConfig,
         );
         if (mcpInfo) {
           output.push(mcpInfo);
@@ -214,6 +224,13 @@ export function createSkillTools(
       if (!canAgentUseSkill(agentName, args.skillName, pluginConfig)) {
         throw new Error(
           `Agent "${agentName}" cannot use skill "${args.skillName}".`,
+        );
+      }
+
+      // Check if this agent can use this MCP
+      if (!canAgentUseMcp(agentName, args.mcpName, pluginConfig)) {
+        throw new Error(
+          `Agent "${agentName}" cannot use MCP "${args.mcpName}".`,
         );
       }
 

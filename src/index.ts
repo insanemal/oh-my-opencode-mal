@@ -23,6 +23,7 @@ import {
 } from './tools';
 import { startTmuxCheck } from './utils';
 import { log } from './utils/logger';
+import { canAgentUseMcp } from './tools/skill/builtin';
 
 const OhMyOpenCodeLite: Plugin = async (ctx) => {
   const config = loadPluginConfig(ctx.directory);
@@ -96,14 +97,13 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       (opencodeConfig as { default_agent?: string }).default_agent =
         'orchestrator';
 
-      const configAgent = opencodeConfig.agent as
-        | Record<string, unknown>
-        | undefined;
-      if (!configAgent) {
+      // Merge Agent configs
+      if (!opencodeConfig.agent) {
         opencodeConfig.agent = { ...agents };
       } else {
-        Object.assign(configAgent, agents);
+        Object.assign(opencodeConfig.agent, agents);
       }
+      const configAgent = opencodeConfig.agent as Record<string, any>;
 
       // Merge MCP configs
       const configMcp = opencodeConfig.mcp as
@@ -113,6 +113,48 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
         opencodeConfig.mcp = { ...mcps };
       } else {
         Object.assign(configMcp, mcps);
+      }
+
+      // Compile MCP permissions into PermissionNext rules
+      // This maps our simple mcps config to opencode's permission system
+      const permissionConfig = opencodeConfig.permission as
+        | Record<string, unknown>
+        | undefined;
+
+      // Get all MCP names from our config
+      const allMcpNames = Object.keys(mcps);
+
+      // For each agent, create permission rules based on their mcps list
+      for (const [agentName, agentConfig] of Object.entries(agents)) {
+        const agentMcps = (agentConfig as { mcps?: string[] })?.mcps;
+        if (!agentMcps) continue;
+
+        // Get or create agent permission config
+        if (!configAgent[agentName]) {
+          configAgent[agentName] = { ...agentConfig };
+        }
+        const agentPermission = (configAgent[agentName].permission ?? {}) as Record<string, unknown>;
+
+        // Determine which MCPs this agent can use
+        const allowedMcps = agentMcps.includes('*')
+          ? allMcpNames
+          : agentMcps.filter((m) => allMcpNames.includes(m));
+
+        // Create permission rules for each MCP
+        // MCP tools are named as <server>_<tool>, so we use <server>_*
+        for (const mcpName of allMcpNames) {
+          const sanitizedMcpName = mcpName.replace(/[^a-zA-Z0-9_-]/g, '_');
+          const permissionKey = `${sanitizedMcpName}_*`;
+          const action = allowedMcps.includes(mcpName) ? 'allow' : 'deny';
+
+          // Only set if not already defined by user
+          if (!(permissionKey in agentPermission)) {
+            agentPermission[permissionKey] = action;
+          }
+        }
+
+        // Update agent config with permissions
+        configAgent[agentName].permission = agentPermission;
       }
     },
 
