@@ -14,16 +14,16 @@ describe('getBuiltinSkills', () => {
     expect(skills.length).toBeGreaterThan(0);
 
     const names = skills.map((s) => s.name);
-    expect(names).toContain('yagni-enforcement');
+    expect(names).toContain('simplify');
     expect(names).toContain('playwright');
   });
 });
 
 describe('getSkillByName', () => {
   test('returns skill by exact name', () => {
-    const skill = getSkillByName('yagni-enforcement');
+    const skill = getSkillByName('simplify');
     expect(skill).toBeDefined();
-    expect(skill?.name).toBe('yagni-enforcement');
+    expect(skill?.name).toBe('simplify');
   });
 
   test('returns undefined for unknown skill', () => {
@@ -86,12 +86,12 @@ describe('getSkillsForAgent', () => {
   test('respects config override for agent skills', () => {
     const config: PluginConfig = {
       agents: {
-        oracle: { skills: ['yagni-enforcement'] },
+        oracle: { skills: ['simplify'] },
       },
     };
     const skills = getSkillsForAgent('oracle', config);
     expect(skills.length).toBe(1);
-    expect(skills[0].name).toBe('yagni-enforcement');
+    expect(skills[0].name).toBe('simplify');
   });
 
   test('config wildcard overrides default', () => {
@@ -129,12 +129,12 @@ describe('getSkillsForAgent', () => {
   test("backward compat: 'frontend-ui-ux-engineer' alias applies to designer", () => {
     const config: PluginConfig = {
       agents: {
-        'frontend-ui-ux-engineer': { skills: ['yagni-enforcement'] },
+        'frontend-ui-ux-engineer': { skills: ['simplify'] },
       },
     };
     const skills = getSkillsForAgent('designer', config);
     expect(skills.length).toBe(1);
-    expect(skills[0].name).toBe('yagni-enforcement');
+    expect(skills[0].name).toBe('simplify');
   });
 
   test('returns empty for unknown agent without config', () => {
@@ -145,7 +145,7 @@ describe('getSkillsForAgent', () => {
 
 describe('canAgentUseSkill', () => {
   test('orchestrator can use any skill (wildcard)', () => {
-    expect(canAgentUseSkill('orchestrator', 'yagni-enforcement')).toBe(true);
+    expect(canAgentUseSkill('orchestrator', 'simplify')).toBe(true);
     expect(canAgentUseSkill('orchestrator', 'playwright')).toBe(true);
     expect(canAgentUseSkill('orchestrator', 'any-skill')).toBe(true);
   });
@@ -154,22 +154,22 @@ describe('canAgentUseSkill', () => {
     expect(canAgentUseSkill('designer', 'playwright')).toBe(true);
   });
 
-  test('designer cannot use yagni-enforcement by default', () => {
-    expect(canAgentUseSkill('designer', 'yagni-enforcement')).toBe(false);
+  test('designer cannot use simplify by default', () => {
+    expect(canAgentUseSkill('designer', 'simplify')).toBe(false);
   });
 
   test('oracle cannot use any skill by default', () => {
-    expect(canAgentUseSkill('oracle', 'yagni-enforcement')).toBe(false);
+    expect(canAgentUseSkill('oracle', 'simplify')).toBe(false);
     expect(canAgentUseSkill('oracle', 'playwright')).toBe(false);
   });
 
   test('respects config override', () => {
     const config: PluginConfig = {
       agents: {
-        oracle: { skills: ['yagni-enforcement'] },
+        oracle: { skills: ['simplify'] },
       },
     };
-    expect(canAgentUseSkill('oracle', 'yagni-enforcement', config)).toBe(true);
+    expect(canAgentUseSkill('oracle', 'simplify', config)).toBe(true);
     expect(canAgentUseSkill('oracle', 'playwright', config)).toBe(false);
   });
 
@@ -179,9 +179,7 @@ describe('canAgentUseSkill', () => {
         librarian: { skills: ['*'] },
       },
     };
-    expect(canAgentUseSkill('librarian', 'yagni-enforcement', config)).toBe(
-      true,
-    );
+    expect(canAgentUseSkill('librarian', 'simplify', config)).toBe(true);
     expect(canAgentUseSkill('librarian', 'playwright', config)).toBe(true);
     expect(canAgentUseSkill('librarian', 'any-other-skill', config)).toBe(true);
   });
@@ -202,9 +200,7 @@ describe('canAgentUseSkill', () => {
       },
     };
     expect(canAgentUseSkill('explorer', 'playwright', config)).toBe(true);
-    expect(canAgentUseSkill('explorer', 'yagni-enforcement', config)).toBe(
-      false,
-    );
+    expect(canAgentUseSkill('explorer', 'simplify', config)).toBe(false);
   });
 
   test('unknown agent returns false without config', () => {

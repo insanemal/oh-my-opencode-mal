@@ -43,10 +43,7 @@ export const DEFAULT_AGENT_MCPS: Record<AgentName, string[]> = {
  * parseList(["a", "c"], ["a", "b", "c"]) // ["a", "c"]
  * parseList(["!*"], ["a", "b"]) // []
  */
-export function parseList(
-  items: string[],
-  allAvailable: string[],
-): string[] {
+export function parseList(items: string[], allAvailable: string[]): string[] {
   if (!items || items.length === 0) {
     return [];
   }
@@ -69,7 +66,7 @@ export function parseList(
   return allow.filter((item) => !deny.includes(item));
 }
 
-const YAGNI_TEMPLATE = `# YAGNI Enforcement Skill
+const YAGNI_TEMPLATE = `# Simplify Skill
 
 You are a code simplicity expert specializing in minimalism and the YAGNI (You Aren't Gonna Need It) principle. Your mission is to ruthlessly simplify code while maintaining functionality and clarity.
 
@@ -185,7 +182,7 @@ This skill provides browser automation capabilities via the Playwright MCP serve
 5. Return results with visual proof`;
 
 const yagniEnforcementSkill: SkillDefinition = {
-  name: 'yagni-enforcement',
+  name: 'simplify',
   description:
     'Code complexity analysis and YAGNI enforcement. Use after major refactors or before finalizing PRs to simplify code.',
   template: YAGNI_TEMPLATE,
@@ -295,7 +292,10 @@ function getAgentSkillList(agentName: string, config?: PluginConfig): string[] {
  * Get the MCP list for an agent (from config or defaults)
  * Supports backward compatibility with old agent names via AGENT_ALIASES
  */
-export function getAgentMcpList(agentName: string, config?: PluginConfig): string[] {
+export function getAgentMcpList(
+  agentName: string,
+  config?: PluginConfig,
+): string[] {
   // Check if config has override for this agent (new name first, then alias)
   const agentConfig =
     config?.agents?.[agentName] ??

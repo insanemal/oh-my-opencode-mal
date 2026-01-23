@@ -41,7 +41,7 @@
   - [Available Skills](#available-skills)
   - [Default Skill Assignments](#default-skill-assignments)
   - [Skill Syntax](#skill-syntax)
-  - [YAGNI Enforcement](#yagni-enforcement)
+- [Simplify](#simplify)
   - [Playwright Integration](#playwright-integration)
   - [Customizing Agent Skills](#customizing-agent-skills)
 - [🔌 **MCP Servers**](#mcp-servers)
@@ -292,7 +292,7 @@ Skills are specialized capabilities that agents can use. Each agent has a defaul
 
 | Skill | Description |
 |-------|-------------|
-| `yagni-enforcement` | Code complexity analysis and YAGNI enforcement |
+| `simplify` | Code complexity analysis and YAGNI enforcement |
 | `playwright` | Browser automation via Playwright MCP |
 
 ### Default Skill Assignments
@@ -314,7 +314,7 @@ Skills support wildcard and exclusion syntax for flexible control:
 |--------|-------------|---------|
 | `"*"` | All skills | `["*"]` |
 | `"!item"` | Exclude specific skill | `["*", "!playwright"]` |
-| Explicit list | Only listed skills | `["yagni-enforcement", "playwright"]` |
+| Explicit list | Only listed skills | `["simplify", "playwright"]` |
 | `"!*"` | Deny all skills | `["!*"]` |
 
 **Rules:**
@@ -323,7 +323,7 @@ Skills support wildcard and exclusion syntax for flexible control:
 - Conflicts (e.g., `["a", "!a"]`) → deny wins (principle of least privilege)
 - Empty list `[]` → no skills allowed
 
-### YAGNI Enforcement
+### Simplify
 
 **The Minimalist's sacred truth: every line of code is a liability.**
 
@@ -345,12 +345,12 @@ Override skills per-agent in your [Plugin Config](#plugin-config-oh-my-opencode-
 {
   "presets": {
     "my-preset": {
-      "orchestrator": {
-        "skills": ["*", "!playwright"]
-      },
-      "designer": {
-        "skills": ["playwright", "yagni-enforcement"]
-      }
+  "orchestrator": {
+    "skills": ["*", "!playwright"]
+  },
+  "designer": {
+    "skills": ["playwright", "simplify"]
+  }
     }
   }
 }
@@ -363,7 +363,7 @@ Override skills per-agent in your [Plugin Config](#plugin-config-oh-my-opencode-
 "orchestrator": { "skills": ["*", "!playwright"] }
 
 // Designer gets only specific skills
-"designer": { "skills": ["playwright", "yagni-enforcement"] }
+"designer": { "skills": ["playwright", "simplify"] }
 
 // Oracle gets no skills
 "oracle": { "skills": [] }
