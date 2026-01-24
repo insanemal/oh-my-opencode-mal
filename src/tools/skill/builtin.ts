@@ -14,7 +14,7 @@ export const DEFAULT_AGENT_SKILLS: Record<AgentName, string[]> = {
   designer: ['playwright'],
   oracle: [],
   librarian: [],
-  explorer: [],
+  explorer: ['cartography'],
   fixer: [],
 };
 
@@ -149,6 +149,58 @@ Recommended action: [Proceed with simplifications/Minor tweaks only/Already mini
 
 Remember: Perfect is the enemy of good. The simplest code that works is often the best code. Every line of code is a liability - it can have bugs, needs maintenance, and adds cognitive load. Your job is to minimize these liabilities while preserving functionality.`;
 
+const CARTOGRAPHY_TEMPLATE = `# Cartography Skill
+
+You are a code cartographer. Your mission is to create structured codemaps that help LLMs understand codebase structure and flows.
+
+## Your Task
+
+Generate a \`codemap.md\` file for the assigned folder that documents:
+- **Purpose**: What this folder contains and its role in the project
+- **Per-file analysis**: For each file, document:
+  - Purpose (1-2 sentences)
+  - Key exports (main functions/classes/components)
+  - Dependencies (imports from other project files)
+  - Data flows (how data moves through the file)
+
+## Format
+
+Use this structure:
+
+\`\`\`markdown
+# [Folder Name]
+
+## Purpose
+[What this folder contains and its role in the project]
+
+## Files
+
+### [filename.ext]
+**Purpose**: [1-2 sentences]
+
+**Exports**: [main exports]
+
+**Dependencies**: [imports from other project files]
+
+**Data Flow**: [input → processing → output]
+
+### [next file.ext]
+...
+\`\`\`
+
+## Guidelines
+
+- Focus on **what** and **why**, not implementation details
+- Avoid listing function parameters (they change often)
+- Document flows and relationships, not signatures
+- Be concise but informative
+- Reference the frontmatter hashes for change tracking
+
+## Frontmatter
+
+The helper script manages frontmatter with hashes. You only update the body content when needed. Check the frontmatter to see which files have changed since the last update.
+`;
+
 const PLAYWRIGHT_TEMPLATE = `# Playwright Browser Automation Skill
 
 This skill provides browser automation capabilities via the Playwright MCP server.
@@ -202,9 +254,17 @@ const playwrightSkill: SkillDefinition = {
   },
 };
 
+const cartographySkill: SkillDefinition = {
+  name: 'cartography',
+  description:
+    'Codebase mapping and structure documentation. Generate hierarchical codemaps to help AI agents understand code organization, dependencies, and data flows. Uses parallel Explorers for efficient large-scale analysis.',
+  template: CARTOGRAPHY_TEMPLATE,
+};
+
 const builtinSkillsMap = new Map<string, SkillDefinition>([
   [yagniEnforcementSkill.name, yagniEnforcementSkill],
   [playwrightSkill.name, playwrightSkill],
+  [cartographySkill.name, cartographySkill],
 ]);
 
 export function getBuiltinSkills(): SkillDefinition[] {

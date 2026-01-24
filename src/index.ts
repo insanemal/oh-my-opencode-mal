@@ -13,6 +13,7 @@ import {
   ast_grep_replace,
   ast_grep_search,
   createBackgroundTools,
+  createCartographyTool,
   createSkillTools,
   grep,
   lsp_diagnostics,
@@ -54,6 +55,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
     tmuxConfig,
     config,
   );
+  const cartographyTool = createCartographyTool(ctx);
   const mcps = createBuiltinMcps(config.disabled_mcps);
   const skillMcpManager = SkillMcpManager.getInstance();
   const skillTools = createSkillTools(skillMcpManager, config);
@@ -88,6 +90,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       ast_grep_search,
       ast_grep_replace,
       antigravity_quota,
+      cartography: cartographyTool,
       ...skillTools,
     },
 

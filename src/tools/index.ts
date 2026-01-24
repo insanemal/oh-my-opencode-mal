@@ -1,7 +1,8 @@
 // AST-grep tools
 export { ast_grep_replace, ast_grep_search } from './ast-grep';
 export { createBackgroundTools } from './background';
-
+// Cartography tool
+export { createCartographyTool } from './cartography';
 // Grep tool (ripgrep-based)
 export { grep } from './grep';
 export {
@@ -11,7 +12,6 @@ export {
   lsp_rename,
   lspManager,
 } from './lsp';
-
 // Antigravity quota tool
 export { antigravity_quota } from './quota';
 
