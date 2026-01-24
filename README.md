@@ -635,6 +635,7 @@ Skills are specialized capabilities that agents can use. Each agent has a defaul
 |-------|-------------|
 | `simplify` | Code complexity analysis and YAGNI enforcement |
 | `playwright` | Browser automation via Playwright MCP |
+| `cartography` | Codebase mapping and structure documentation |
 
 ### Default Skill Assignments
 
@@ -644,7 +645,7 @@ Skills are specialized capabilities that agents can use. Each agent has a defaul
 | `designer` | `playwright` |
 | `oracle` | none |
 | `librarian` | none |
-| `explorer` | none |
+| `explorer` | `cartography` |
 | `fixer` | none |
 
 ### Configuration & Syntax
@@ -696,6 +697,29 @@ Use after major refactors or before finalizing PRs. Identifies unnecessary compl
 - **Browser Automation**: Full Playwright capabilities (browsing, clicking, typing, scraping).
 - **Screenshots**: Capture visual state of any web page.
 - **Sandboxed Output**: Screenshots saved to session subdirectory (check tool output for path).
+
+### Cartography
+
+**Codebase mapping and structure documentation.**
+
+- **Hierarchical Mapping**: Generate `codemap.md` files at each folder level to document code organization.
+- **Hash-Based Change Detection**: Only re-maps files that have changed since last run.
+- **Flow Documentation**: Captures purpose, exports, dependencies, and data flows for each file.
+- **Parallel Exploration**: Uses multiple Explorer agents to map large codebases efficiently.
+
+**Usage:**
+```bash
+# Scan directory structure
+cartography scan <folder> --extensions ts,tsx,js
+
+# Calculate hashes
+cartography hash <folder> --extensions ts,tsx,js
+
+# Generate/update codemap.md
+cartography update <folder> --extensions ts,tsx,js
+```
+
+See [cartography.md](cartography.md) for detailed design documentation.
 
 ---
 
