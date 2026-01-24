@@ -3,14 +3,13 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createMD5, md5 } from 'hash-wasm';
 import ignore from 'ignore';
-import { parse, stringify } from 'yaml';
 
 interface FileEntry {
   p: string;
   h: string;
 }
 
-interface Frontmatter {
+interface CodemapData {
   h: string;
   f: FileEntry[];
 }
@@ -118,33 +117,48 @@ async function calculateFolderHash(
   return hasher.digest();
 }
 
-interface ParsedFrontmatter {
-  frontmatter: Frontmatter | null;
-  body: string;
-}
-
-function parseFrontmatter(content: string): ParsedFrontmatter {
-  const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-
-  if (!match) {
-    return { frontmatter: null, body: content };
+function readCodemapData(codemapPath: string): CodemapData | null {
+  if (!existsSync(codemapPath)) {
+    return null;
   }
 
   try {
-    const frontmatter = parse(match[1]) as Frontmatter;
-    return { frontmatter, body: match[2] };
+    const content = readFileSync(codemapPath, 'utf-8');
+    return JSON.parse(content) as CodemapData;
   } catch {
-    return { frontmatter: null, body: content };
+    return null;
   }
 }
 
-function formatFrontmatter(frontmatter: Frontmatter): string {
-  return `---
-h: ${frontmatter.h}
-f:
-${frontmatter.f.map((f) => `  - p: ${f.p}\n    h: ${f.h}`).join('\n')}
----
-`;
+function writeCodemapData(codemapPath: string, data: CodemapData): void {
+  const content = `${JSON.stringify(data, null, 2)}\n`;
+  writeFileSync(codemapPath, content, 'utf-8');
+}
+
+function diffFiles(
+  currentHashes: Map<string, string>,
+  previous: CodemapData | null,
+): string[] {
+  if (!previous) {
+    return Array.from(currentHashes.keys()).sort((a, b) => a.localeCompare(b));
+  }
+
+  const oldHashes = new Map(previous.f.map((f) => [f.p, f.h]));
+  const changed = new Set<string>();
+
+  for (const [path, hash] of currentHashes) {
+    if (oldHashes.get(path) !== hash) {
+      changed.add(path);
+    }
+  }
+
+  for (const path of oldHashes.keys()) {
+    if (!currentHashes.has(path)) {
+      changed.add(path);
+    }
+  }
+
+  return Array.from(changed).sort((a, b) => a.localeCompare(b));
 }
 
 async function updateCodemap(
@@ -156,44 +170,45 @@ async function updateCodemap(
   const fileHashes = await calculateHashes(folder, files);
   const folderHash = await calculateFolderHash(fileHashes);
 
-  const codemapPath = join(folder, 'codemap.md');
-  let body = '';
-  let changedFiles: string[] = [];
+  const codemapPath = join(folder, '.codemap.json');
+  const existing = readCodemapData(codemapPath);
 
-  if (existsSync(codemapPath)) {
-    const content = readFileSync(codemapPath, 'utf-8');
-    const { frontmatter, body: existingBody } = parseFrontmatter(content);
-
-    if (frontmatter?.h === folderHash) {
-      return { updated: false, fileCount: files.length, changedFiles: [] };
-    }
-
-    body = existingBody;
-
-    if (frontmatter) {
-      const oldHashes = new Map(frontmatter.f.map((f) => [f.p, f.h]));
-
-      for (const [path, hash] of fileHashes) {
-        if (oldHashes.get(path) !== hash) {
-          changedFiles.push(path);
-        }
-      }
-    } else {
-      changedFiles = files;
-    }
-  } else {
-    changedFiles = files;
+  if (existing?.h === folderHash) {
+    return { updated: false, fileCount: files.length, changedFiles: [] };
   }
 
-  const frontmatter: Frontmatter = {
+  const changedFiles = diffFiles(fileHashes, existing);
+  const data: CodemapData = {
     h: folderHash,
     f: files.map((p) => ({ p, h: fileHashes.get(p)! })),
   };
 
-  const content = formatFrontmatter(frontmatter) + body;
-  writeFileSync(codemapPath, content, 'utf-8');
+  writeCodemapData(codemapPath, data);
 
   return { updated: true, fileCount: files.length, changedFiles };
+}
+
+async function getChanges(
+  folder: string,
+  extensions: string[],
+): Promise<{
+  fileCount: number;
+  folderHash: string;
+  changedFiles: string[];
+}> {
+  const ignorer = parseGitignore(folder);
+  const files = getFiles(folder, extensions, ignorer);
+  const fileHashes = await calculateHashes(folder, files);
+  const folderHash = await calculateFolderHash(fileHashes);
+  const codemapPath = join(folder, '.codemap.json');
+  const existing = readCodemapData(codemapPath);
+  const changedFiles = diffFiles(fileHashes, existing);
+
+  return {
+    fileCount: files.length,
+    folderHash,
+    changedFiles,
+  };
 }
 
 async function main() {
@@ -202,12 +217,20 @@ async function main() {
   const folder = folderArg ? resolve(folderArg) : process.cwd();
 
   const extArg = process.argv.find((a) => a.startsWith('--extensions'));
-  const extensions = extArg
-    ? extArg
-        .split('=')[1]
+  let extensions: string[];
+
+  if (extArg) {
+    const extList = extArg.split('=')[1];
+    if (extList) {
+      extensions = extList
         .split(',')
-        .map((e) => '.' + e.trim().replace(/^\./, ''))
-    : ['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs'];
+        .map((e) => '.' + e.trim().replace(/^\./, '')); // 预先计算点号前缀
+    } else {
+      extensions = ['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs'];
+    }
+  } else {
+    extensions = ['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs'];
+  }
 
   switch (command) {
     case 'scan': {
@@ -266,9 +289,27 @@ async function main() {
       break;
     }
 
+    case 'changes': {
+      const result = await getChanges(folder, extensions);
+      console.log(
+        JSON.stringify(
+          {
+            folder,
+            fileCount: result.fileCount,
+            folderHash: result.folderHash,
+            changedFiles: result.changedFiles,
+            hasChanges: result.changedFiles.length > 0,
+          },
+          null,
+          2,
+        ),
+      );
+      break;
+    }
+
     default:
       console.error(
-        'Usage: cartography <scan|hash|update> [folder] [--extensions ts,tsx,js]',
+        'Usage: cartography <scan|hash|update|changes> [folder] [--extensions ts,tsx,js]',
       );
       process.exit(1);
   }

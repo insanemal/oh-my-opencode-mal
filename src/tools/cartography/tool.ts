@@ -1,5 +1,4 @@
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
   type PluginInput,
   type ToolDefinition,
@@ -9,12 +8,12 @@ import {
 export function createCartographyTool(ctx: PluginInput): ToolDefinition {
   return tool({
     description:
-      'Cartography helper script for codebase mapping. Use for directory scanning, hash calculation, and codemap.md generation.',
+      'Cartography helper script for codebase mapping. Use for directory scanning, hash calculation, and .codemap.json updates.',
     args: {
       command: tool.schema
-        .enum(['scan', 'hash', 'update'])
+        .enum(['scan', 'hash', 'update', 'changes'])
         .describe(
-          'Command to run: scan (list files), hash (calculate hashes), update (generate/update codemap.md)',
+          'Command to run: scan (list files), hash (calculate hashes), update (update .codemap.json), changes (report changes without writing)',
         ),
       folder: tool.schema
         .string()
@@ -30,10 +29,8 @@ export function createCartographyTool(ctx: PluginInput): ToolDefinition {
     execute: async (args, toolContext) => {
       const sessionDir = await getSessionDirectory(ctx, toolContext);
 
-      const scriptPath = join(
-        fileURLToPath(import.meta.url),
-        '../../../scripts/cartography.ts',
-      );
+      // Use ctx.directory (plugin project dir) to find the script
+      const scriptPath = join(ctx.directory, 'scripts/cartography.ts');
 
       const extensions = (args.extensions as string) || 'ts,tsx,js,jsx';
       const commandArgs = [

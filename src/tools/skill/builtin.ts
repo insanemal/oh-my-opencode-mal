@@ -153,11 +153,21 @@ const CARTOGRAPHY_TEMPLATE = `# Cartography Skill
 
 You are a code cartographer. Your mission is to create structured codemaps that help LLMs understand codebase structure and flows.
 
-## Your Task
+## Orchestrator Workflow
 
-Generate a \`codemap.md\` file for the assigned folder that documents:
+When the user asks for codemaps or updates, you orchestrate the workflow:
+- Call the \`cartography\` tool with \`scan\` to understand folder structure and decide priority folders and extensions.
+- For each target folder, run \`cartography update <folder> --extensions ...\`.
+- If \`updated: false\`, skip analysis for that folder.
+- If \`updated: true\`, use \`changedFiles\` to decide which files need re-analysis.
+- Dispatch Explorer agents to update the body content of \`codemap.md\` (leaf folders first, then parents).
+- After Explorer updates, re-run \`cartography update\` to refresh hashes if needed.
+
+## Explorer Task
+
+Generate or update the \`codemap.md\` body for the assigned folder:
 - **Purpose**: What this folder contains and its role in the project
-- **Per-file analysis**: For each file, document:
+- **Per-file analysis**: For each file (especially \`changedFiles\`), document:
   - Purpose (1-2 sentences)
   - Key exports (main functions/classes/components)
   - Dependencies (imports from other project files)
@@ -194,11 +204,11 @@ Use this structure:
 - Avoid listing function parameters (they change often)
 - Document flows and relationships, not signatures
 - Be concise but informative
-- Reference the frontmatter hashes for change tracking
+- Reference the \`.codemap.json\` hashes for change tracking
 
-## Frontmatter
+## Hash Storage
 
-The helper script manages frontmatter with hashes. You only update the body content when needed. Check the frontmatter to see which files have changed since the last update.
+The helper script manages hashes in \`.codemap.json\`. You only update the body content when needed. Check \`.codemap.json\` or the \`changedFiles\` list to see which files changed since the last update.
 `;
 
 const PLAYWRIGHT_TEMPLATE = `# Playwright Browser Automation Skill
