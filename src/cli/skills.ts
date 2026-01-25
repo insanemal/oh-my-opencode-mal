@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 
 /**
  * A recommended skill to install via `npx skills add`.
@@ -36,7 +36,10 @@ export const RECOMMENDED_SKILLS: RecommendedSkill[] = [
         skillName: 'agent-browser',
         allowedAgents: ['designer'],
         description: 'High-performance browser automation',
-        postInstallCommands: ['npm install -g agent-browser', 'agent-browser install'],
+        postInstallCommands: [
+            'npm install -g agent-browser',
+            'agent-browser install',
+        ],
     },
 ];
 
@@ -46,17 +49,34 @@ export const RECOMMENDED_SKILLS: RecommendedSkill[] = [
  * @returns True if installation succeeded, false otherwise
  */
 export function installSkill(skill: RecommendedSkill): boolean {
-    const command = `npx skills add ${skill.repo} --skill ${skill.skillName} -a opencode -y --global`;
+    const args = [
+        'skills',
+        'add',
+        skill.repo,
+        '--skill',
+        skill.skillName,
+        '-a',
+        'opencode',
+        '-y',
+        '--global',
+    ];
 
     try {
-        execSync(command, { stdio: 'inherit' });
+        const result = spawnSync('npx', args, { stdio: 'inherit' });
+        if (result.status !== 0) {
+            return false;
+        }
 
         // Run post-install commands if any
         if (skill.postInstallCommands && skill.postInstallCommands.length > 0) {
             console.log(`Running post-install commands for ${skill.name}...`);
             for (const cmd of skill.postInstallCommands) {
                 console.log(`> ${cmd}`);
-                execSync(cmd, { stdio: 'inherit' });
+                const [command, ...cmdArgs] = cmd.split(' ');
+                const cmdResult = spawnSync(command, cmdArgs, { stdio: 'inherit' });
+                if (cmdResult.status !== 0) {
+                    console.warn(`Post-install command failed: ${cmd}`);
+                }
             }
         }
 
@@ -65,21 +85,6 @@ export function installSkill(skill: RecommendedSkill): boolean {
         console.error(`Failed to install skill: ${skill.name}`, error);
         return false;
     }
-}
-
-
-/**
- * Install all recommended skills.
- * @returns Array of successfully installed skill names
- */
-export function installAllSkills(): string[] {
-    const installed: string[] = [];
-    for (const skill of RECOMMENDED_SKILLS) {
-        if (installSkill(skill)) {
-            installed.push(skill.name);
-        }
-    }
-    return installed;
 }
 
 /**
@@ -97,7 +102,6 @@ export function getSkillPermissionsForAgent(
         '*': agentName === 'orchestrator' ? 'allow' : 'deny',
     };
 
-
     // If the user provided an explicit skill list (even empty), honor it
     if (skillList) {
         permissions['*'] = 'deny';
@@ -112,7 +116,6 @@ export function getSkillPermissionsForAgent(
         }
         return permissions;
     }
-
 
     // Otherwise, use recommended defaults
     for (const skill of RECOMMENDED_SKILLS) {

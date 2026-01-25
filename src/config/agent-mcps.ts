@@ -1,11 +1,9 @@
-import type { AgentName, PluginConfig } from './schema';
-import { McpNameSchema } from './schema';
-
-/** Map old agent names to new names for backward compatibility */
-const AGENT_ALIASES: Record<string, string> = {
-    explore: 'explorer',
-    'frontend-ui-ux-engineer': 'designer',
-};
+import {
+    type AgentName,
+    getAgentOverride,
+    McpNameSchema,
+    type PluginConfig,
+} from '.';
 
 /** Default MCPs per agent - "*" means all MCPs, "!item" excludes specific MCPs */
 
@@ -17,7 +15,6 @@ export const DEFAULT_AGENT_MCPS: Record<AgentName, string[]> = {
     explorer: [],
     fixer: [],
 };
-
 
 /**
  * Parse a list with wildcard and exclusion syntax.
@@ -57,12 +54,7 @@ export function getAgentMcpList(
     agentName: string,
     config?: PluginConfig,
 ): string[] {
-    const agentConfig =
-        config?.agents?.[agentName] ??
-        config?.agents?.[
-        Object.keys(AGENT_ALIASES).find((k) => AGENT_ALIASES[k] === agentName) ??
-        ''
-        ];
+    const agentConfig = getAgentOverride(config, agentName);
     if (agentConfig?.mcps !== undefined) {
         return agentConfig.mcps;
     }
