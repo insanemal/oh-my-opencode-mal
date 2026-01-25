@@ -73,12 +73,12 @@ python3 ~/.config/opencode/skills/cartography/scripts/cartographer.py update \
 
 ## Codemap Content
 
-Explorers should write **timeless architectural understanding**, not exact details that get stale:
+Explorers are granted write permissions for `codemap.md` files during this workflow. Use precise technical terminology to document the implementation:
 
-- **Responsibility** - What is this folder's job in the system?
-- **Design** - Key patterns, abstractions, architectural decisions
-- **Flow** - How does data/control flow through this module?
-- **Integration** - How does it connect to other parts of the system?
+- **Responsibility** - Define the specific role of this directory using standard software engineering terms (e.g., "Service Layer", "Data Access Object", "Middleware").
+- **Design Patterns** - Identify and name specific patterns used (e.g., "Observer", "Singleton", "Factory", "Strategy"). Detail the abstractions and interfaces.
+- **Data & Control Flow** - Explicitly trace how data enters and leaves the module. Mention specific function call sequences and state transitions.
+- **Integration Points** - List dependencies and consumer modules. Use technical names for hooks, events, or API endpoints.
 
 Example codemap:
 
