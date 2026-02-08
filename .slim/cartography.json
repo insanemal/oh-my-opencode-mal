@@ -2,7 +2,7 @@
   "metadata": {
     "version": "1.0.0",
     "last_run": "2026-01-25T21:23:31.047804Z",
-    "root": "/Users/xp/repos/oh-my-opencode-slim",
+    "root": "/Users/xp/repos/oh-my-opencode-mal",
     "include_patterns": [
       "src/**/*.ts",
       "src/**/*.tsx",

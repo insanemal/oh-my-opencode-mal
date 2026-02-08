@@ -70,7 +70,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
   const postReadNudgeHook = createPostReadNudgeHook();
 
   return {
-    name: 'oh-my-opencode-slim',
+    name: 'oh-my-opencode-mal',
 
     agent: agents,
 

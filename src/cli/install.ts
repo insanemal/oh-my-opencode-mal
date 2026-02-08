@@ -41,7 +41,7 @@ const SYMBOLS = {
 function printHeader(isUpdate: boolean): void {
   console.log();
   console.log(
-    `${BOLD}oh-my-opencode-slim ${isUpdate ? 'Update' : 'Install'}${RESET}`,
+    `${BOLD}oh-my-opencode-mal ${isUpdate ? 'Update' : 'Install'}${RESET}`,
   );
   console.log('='.repeat(30));
   console.log();
@@ -270,7 +270,7 @@ async function runInstall(config: InstallConfig): Promise<number> {
   const { ok } = await checkOpenCodeInstalled();
   if (!ok) return 1;
 
-  printStep(step++, totalSteps, 'Adding oh-my-opencode-slim plugin...');
+  printStep(step++, totalSteps, 'Adding oh-my-opencode-mal plugin...');
   const pluginResult = await addPluginToOpenCodeConfig();
   if (!handleStepResult(pluginResult, 'Plugin added')) return 1;
 
@@ -285,7 +285,7 @@ async function runInstall(config: InstallConfig): Promise<number> {
       return 1;
   }
 
-  printStep(step++, totalSteps, 'Writing oh-my-opencode-slim configuration...');
+  printStep(step++, totalSteps, 'Writing oh-my-opencode-mal configuration...');
   const liteResult = writeLiteConfig(config);
   if (!handleStepResult(liteResult, 'Config written')) return 1;
 
@@ -403,7 +403,7 @@ export async function install(args: InstallArgs): Promise<number> {
       }
       console.log();
       printInfo(
-        'Usage: bunx oh-my-opencode-slim install --no-tui --antigravity=<yes|no> --openai=<yes|no> --tmux=<yes|no>',
+        'Usage: bunx oh-my-opencode-mal install --no-tui --antigravity=<yes|no> --openai=<yes|no> --tmux=<yes|no>',
       );
       console.log();
       return 1;

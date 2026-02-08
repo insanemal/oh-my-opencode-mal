@@ -5,7 +5,7 @@ import * as path from 'node:path';
 import { log } from './logger';
 
 describe('logger', () => {
-  const testLogFile = path.join(os.tmpdir(), 'oh-my-opencode-slim.log');
+  const testLogFile = path.join(os.tmpdir(), 'oh-my-opencode-mal.log');
 
   beforeEach(() => {
     // Clean up log file before each test

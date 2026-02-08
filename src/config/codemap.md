@@ -16,7 +16,7 @@ Manages the OpenCode Slim plugin configuration surface (constants, schema, loade
 
 ## Flow
 
-- `loadPluginConfig` is the entry point: it reads `~/.config/opencode/oh-my-opencode-slim.json`, then `<project>/.opencode/oh-my-opencode-slim.json`, deep-merges agents/tmux objects, and replaces top-level arrays with project-specific values.
+- `loadPluginConfig` is the entry point: it reads `~/.config/opencode/oh-my-opencode-mal.json`, then `<project>/.opencode/oh-my-opencode-mal.json`, deep-merges agents/tmux objects, and replaces top-level arrays with project-specific values.
 - Environment overrides (`OH_MY_OPENCODE_SLIM_PRESET`) are applied after the merge, and any preset name resolves via `config.presets` with a warning if missing.
 - `loadAgentPrompt` layers user-supplied `{agent}.md` and `_append` files from the prompts directory, so custom prompts can replace or extend defaults without touching code.
 - `getAgentMcpList` pulls agent-level overrides (via `getAgentOverride`) before falling back to `DEFAULT_AGENT_MCPS`, and `getAvailableMcpNames` filters the MCP schema by `disabled_mcps`.

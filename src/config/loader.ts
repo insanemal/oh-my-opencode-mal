@@ -3,8 +3,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { type PluginConfig, PluginConfigSchema } from './schema';
 
-const CONFIG_FILENAME = 'oh-my-opencode-slim.json';
-const PROMPTS_DIR_NAME = 'oh-my-opencode-slim';
+const CONFIG_FILENAME = 'oh-my-opencode-mal.json';
+const PROMPTS_DIR_NAME = 'oh-my-opencode-mal';
 
 /**
  * Get the user's configuration directory following XDG Base Directory specification.
@@ -31,7 +31,7 @@ function loadConfigFromPath(configPath: string): PluginConfig | null {
     const result = PluginConfigSchema.safeParse(rawConfig);
 
     if (!result.success) {
-      console.warn(`[oh-my-opencode-slim] Invalid config at ${configPath}:`);
+      console.warn(`[oh-my-opencode-mal] Invalid config at ${configPath}:`);
       console.warn(result.error.format());
       return null;
     }
@@ -45,7 +45,7 @@ function loadConfigFromPath(configPath: string): PluginConfig | null {
       (error as NodeJS.ErrnoException).code !== 'ENOENT'
     ) {
       console.warn(
-        `[oh-my-opencode-slim] Error reading config from ${configPath}:`,
+        `[oh-my-opencode-mal] Error reading config from ${configPath}:`,
         error.message,
       );
     }
@@ -96,8 +96,8 @@ function deepMerge<T extends Record<string, unknown>>(
  * Load plugin configuration from user and project config files, merging them appropriately.
  *
  * Configuration is loaded from two locations:
- * 1. User config: ~/.config/opencode/oh-my-opencode-slim.json (or $XDG_CONFIG_HOME)
- * 2. Project config: <directory>/.opencode/oh-my-opencode-slim.json
+ * 1. User config: ~/.config/opencode/oh-my-opencode-mal.json (or $XDG_CONFIG_HOME)
+ * 2. Project config: <directory>/.opencode/oh-my-opencode-mal.json
  *
  * Project config takes precedence over user config. Nested objects (agents, tmux) are
  * deep-merged, while top-level arrays are replaced entirely by project config.
@@ -146,7 +146,7 @@ export function loadPluginConfig(directory: string): PluginConfig {
         ? Object.keys(config.presets).join(', ')
         : 'none';
       console.warn(
-        `[oh-my-opencode-slim] Preset "${config.preset}" not found (from ${presetSource}). Available presets: ${availablePresets}`,
+        `[oh-my-opencode-mal] Preset "${config.preset}" not found (from ${presetSource}). Available presets: ${availablePresets}`,
       );
     }
   }
@@ -179,7 +179,7 @@ export function loadAgentPrompt(agentName: string): {
       result.prompt = fs.readFileSync(promptPath, 'utf-8');
     } catch (error) {
       console.warn(
-        `[oh-my-opencode-slim] Error reading prompt file ${promptPath}:`,
+        `[oh-my-opencode-mal] Error reading prompt file ${promptPath}:`,
         error instanceof Error ? error.message : String(error),
       );
     }
@@ -192,7 +192,7 @@ export function loadAgentPrompt(agentName: string): {
       result.appendPrompt = fs.readFileSync(appendPromptPath, 'utf-8');
     } catch (error) {
       console.warn(
-        `[oh-my-opencode-slim] Error reading append prompt file ${appendPromptPath}:`,
+        `[oh-my-opencode-mal] Error reading append prompt file ${appendPromptPath}:`,
         error instanceof Error ? error.message : String(error),
       );
     }

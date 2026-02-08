@@ -71,7 +71,7 @@ function copyDirRecursive(src: string, dest: string): void {
 /**
  * Install a custom skill by copying from src/skills/ to ~/.config/opencode/skills/
  * @param skill - The custom skill to install
- * @param projectRoot - Root directory of oh-my-opencode-slim project
+ * @param projectRoot - Root directory of oh-my-opencode-mal project
  * @returns True if installation succeeded, false otherwise
  */
 export function installCustomSkill(

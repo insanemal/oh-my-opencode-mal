@@ -26,7 +26,7 @@ export function getConfigJsonc(): string {
 }
 
 export function getLiteConfig(): string {
-  return join(getConfigDir(), 'oh-my-opencode-slim.json');
+  return join(getConfigDir(), 'oh-my-opencode-mal.json');
 }
 
 export function getExistingConfigPath(): string {

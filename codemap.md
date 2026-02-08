@@ -1,4 +1,4 @@
-# Repository Atlas: oh-my-opencode-slim
+# Repository Atlas: oh-my-opencode-mal
 
 ## Project Responsibility
 Provides an OpenCode plugin that orchestrates specialist agents, background task execution, tooling (grep/AST/LSP/quota), MCP connectors, and lifecycle hooks, plus a CLI installer that bootstraps user configuration and skill setup.

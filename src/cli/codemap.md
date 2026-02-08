@@ -1,7 +1,7 @@
 # src/cli/
 
 ## Responsibility
-- Serve as the installer CLI for oh-my-opencode-slim: `src/cli/index.ts` parses bun-CLI flags and routes to the install workflow, while `src/cli/install.ts` orchestrates interactive prompts, validation, skill installation, next-step messaging, and exit handling.
+- Serve as the installer CLI for oh-my-opencode-mal: `src/cli/index.ts` parses bun-CLI flags and routes to the install workflow, while `src/cli/install.ts` orchestrates interactive prompts, validation, skill installation, next-step messaging, and exit handling.
 - Provide lightweight utilities (`types.ts`, `system.ts`, `paths.ts`, `config-manager.ts`, `config-io.ts`, `providers.ts`, `skills.ts`, `custom-skills.ts`) that encapsulate the configuration, provider, and skill-install responsibilities so `install.ts` remains focused on sequencing.
 
 ## Design Patterns

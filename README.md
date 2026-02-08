@@ -1,6 +1,6 @@
 <div align="center">
 
-# oh-my-opencode-slim
+# oh-my-opencode-mal
 
 **A lightweight, powerful agent orchestration plugin for OpenCode**
 
@@ -48,7 +48,7 @@
 - [⚙️ Configuration](#️-configuration)
   - [Files You Edit](#files-you-edit)
   - [Prompt Overriding](#prompt-overriding)
-  - [Plugin Config (oh-my-opencode-slim.json)](#plugin-config-oh-my-opencode-slimjson)
+  - [Plugin Config (oh-my-opencode-mal.json)](#plugin-config-oh-my-opencode-maljson)
 - [🗑️ Uninstallation](#️-uninstallation)
 - [🙏 Credits](#-credits)
 - [📄 License](#-license)
@@ -62,13 +62,13 @@
 Run the interactive installer:
 
 ```bash
-bunx oh-my-opencode-slim@latest install
+bunx oh-my-opencode-mal@latest install
 ```
 
 Or use non-interactive mode:
 
 ```bash
-bunx oh-my-opencode-slim@latest install --no-tui --antigravity=yes --openai=yes --tmux=no
+bunx oh-my-opencode-mal@latest install --no-tui --antigravity=yes --openai=yes --tmux=no
 ```
 
 After installation, authenticate with your providers:
@@ -83,7 +83,7 @@ Once authenticated, run opencode and `ping all agents` to verify all agents resp
 
 <img src="img/ping.png" alt="Ping All Agents" width="800">
 
-> **💡 Tip: Models are fully customizable.** The installer sets sensible defaults, but you can assign *any* model to *any* agent. Edit `~/.config/opencode/oh-my-opencode-slim.json` to override models, adjust reasoning effort, or disable agents entirely. See [Configuration](#configuration) for details.
+> **💡 Tip: Models are fully customizable.** The installer sets sensible defaults, but you can assign *any* model to *any* agent. Edit `~/.config/opencode/oh-my-opencode-mal.json` to override models, adjust reasoning effort, or disable agents entirely. See [Configuration](#configuration) for details.
 
 **Alternative: Ask any coding agent**
 
@@ -91,7 +91,7 @@ Paste this into Claude Code, AmpCode, Cursor, or any coding agent:
 
 ```
 Install and configure by following the instructions here:
-https://raw.githubusercontent.com/alvinunreal/oh-my-opencode-slim/refs/heads/master/README.md
+https://raw.githubusercontent.com/insanemal/oh-my-opencode-mal/refs/heads/master/README.md
 ```
 
 ### For LLM Agents
@@ -99,7 +99,7 @@ https://raw.githubusercontent.com/alvinunreal/oh-my-opencode-slim/refs/heads/mas
 <details>
 <summary>Instructions for LLM Agents (click to expand)</summary>
 
-If you're an LLM Agent helping set up oh-my-opencode-slim, follow these steps.
+If you're an LLM Agent helping set up oh-my-opencode-mal, follow these steps.
 
 ---
 
@@ -123,7 +123,7 @@ Ask these questions **one at a time**, waiting for responses:
 Help the user understand the tradeoffs:
 - Antigravity via cliproxy provides Claude + Gemini routing.
 - OpenAI is optional; it enables `openai/` models.
-- If the user has **no providers**, the plugin still works using **OpenCode Zen** free models (`opencode/big-pickle`). They can switch to paid providers later by editing `~/.config/opencode/oh-my-opencode-slim.json`.
+- If the user has **no providers**, the plugin still works using **OpenCode Zen** free models (`opencode/big-pickle`). They can switch to paid providers later by editing `~/.config/opencode/oh-my-opencode-mal.json`.
 
 ---
 
@@ -132,30 +132,30 @@ Help the user understand the tradeoffs:
 Based on answers, run:
 
 ```bash
-bunx oh-my-opencode-slim@latest install --no-tui --antigravity=<yes|no> --openai=<yes|no>
+bunx oh-my-opencode-mal@latest install --no-tui --antigravity=<yes|no> --openai=<yes|no>
 ```
 
 **Examples:**
 ```bash
 # Antigravity + OpenAI
-bunx oh-my-opencode-slim@latest install --no-tui --antigravity=yes --openai=yes --tmux=no
+bunx oh-my-opencode-mal@latest install --no-tui --antigravity=yes --openai=yes --tmux=no
 
 # OpenAI only
-bunx oh-my-opencode-slim@latest install --no-tui --antigravity=no --openai=yes --tmux=no
+bunx oh-my-opencode-mal@latest install --no-tui --antigravity=no --openai=yes --tmux=no
 
 # No providers (Zen free models only)
-bunx oh-my-opencode-slim@latest install --no-tui --antigravity=no --openai=no --tmux=no
+bunx oh-my-opencode-mal@latest install --no-tui --antigravity=no --openai=no --tmux=no
 ```
 
 The installer automatically:
 - Adds the plugin to `~/.config/opencode/opencode.json`
 - Configures cliproxy provider for Antigravity models
-- Generates agent model mappings in `~/.config/opencode/oh-my-opencode-slim.json`
+- Generates agent model mappings in `~/.config/opencode/oh-my-opencode-mal.json`
 
 **Crucial Advice for the User:**
-- They can easily assign **different models to different agents** by editing `~/.config/opencode/oh-my-opencode-slim.json`.
+- They can easily assign **different models to different agents** by editing `~/.config/opencode/oh-my-opencode-mal.json`.
 - If they add a new provider later, they just need to update this file.
-- Read generated  `~/.config/opencode/oh-my-opencode-slim.json` file and report the model configuration.
+- Read generated  `~/.config/opencode/oh-my-opencode-mal.json` file and report the model configuration.
 
 ---
 
@@ -193,11 +193,11 @@ opencode auth login
 
 If the installer fails, check the expected config format:
 ```bash
-bunx oh-my-opencode-slim@latest install --help
+bunx oh-my-opencode-mal@latest install --help
 ```
 
 Then manually create the config files at:
-- `~/.config/opencode/oh-my-opencode-slim.json`
+- `~/.config/opencode/oh-my-opencode-mal.json`
 
 </details>
 
@@ -495,7 +495,7 @@ Presets are pre-configured agent model mappings for different provider combinati
 
 **Method 1: Edit Config File**
 
-Edit `~/.config/opencode/oh-my-opencode-slim.json` and change the `preset` field:
+Edit `~/.config/opencode/oh-my-opencode-mal.json` and change the `preset` field:
 
 ```json
 {
@@ -702,7 +702,7 @@ python3 ~/.config/opencode/skills/cartography/scripts/cartographer.py update --r
 
 ### Skills Assignment
 
-You can customize which skills each agent is allowed to use in `~/.config/opencode/oh-my-opencode-slim.json`.
+You can customize which skills each agent is allowed to use in `~/.config/opencode/oh-my-opencode-mal.json`.
 
 **Syntax:**
 
@@ -763,7 +763,7 @@ Control which agents can access which MCP servers using per-agent allowlists:
 
 ### Configuration & Syntax
 
-You can configure MCP access in your plugin configuration file: `~/.config/opencode/oh-my-opencode-slim.json`.
+You can configure MCP access in your plugin configuration file: `~/.config/opencode/oh-my-opencode-mal.json`.
 
 **Per-Agent Permissions**
 
@@ -820,7 +820,7 @@ You can disable specific MCP servers globally by adding them to the `disabled_mc
 
 #### Quick Setup
 
-1. **Enable tmux integration** in `oh-my-opencode-slim.json` (see [Plugin Config](#plugin-config-oh-my-opencode-slimjson)).
+1. **Enable tmux integration** in `oh-my-opencode-mal.json` (see [Plugin Config](#plugin-config-oh-my-opencode-maljson)).
 
   ```json
   {
@@ -914,14 +914,14 @@ OpenCode automatically formats files after they're written or edited using langu
 | File | Purpose |
 |------|---------|
 | `~/.config/opencode/opencode.json` | OpenCode core settings |
-| `~/.config/opencode/oh-my-opencode-slim.json` | Plugin settings (agents, tmux, MCPs) |
-| `.opencode/oh-my-opencode-slim.json` | Project-local plugin overrides (optional) |
+| `~/.config/opencode/oh-my-opencode-mal.json` | Plugin settings (agents, tmux, MCPs) |
+| `.opencode/oh-my-opencode-mal.json` | Project-local plugin overrides (optional) |
 
 ---
 
 ### Prompt Overriding
 
-You can customize agent prompts by creating markdown files in `~/.config/opencode/oh-my-opencode-slim/`:
+You can customize agent prompts by creating markdown files in `~/.config/opencode/oh-my-opencode-mal/`:
 
 | File | Purpose |
 |------|---------|
@@ -931,7 +931,7 @@ You can customize agent prompts by creating markdown files in `~/.config/opencod
 **Example:**
 
 ```
-~/.config/opencode/oh-my-opencode-slim/
+~/.config/opencode/oh-my-opencode-mal/
   ├── orchestrator.md          # Custom orchestrator prompt
   ├── orchestrator_append.md   # Append to default orchestrator prompt
   ├── explorer.md
@@ -950,7 +950,7 @@ This allows you to fine-tune agent behavior without modifying the source code.
 
 ---
 
-### Plugin Config (`oh-my-opencode-slim.json`)
+### Plugin Config (`oh-my-opencode-mal.json`)
 
 The installer generates this file based on your providers. You can manually customize it to mix and match models. See the [Presets](#️-presets) section for detailed configuration options.
 
@@ -978,12 +978,12 @@ The installer generates this file based on your providers. You can manually cust
 
 1. **Remove the plugin from your OpenCode config**:
 
-   Edit `~/.config/opencode/opencode.json` and remove `"oh-my-opencode-slim"` from the `plugin` array.
+   Edit `~/.config/opencode/opencode.json` and remove `"oh-my-opencode-mal"` from the `plugin` array.
 
 2. **Remove configuration files (optional)**:
    ```bash
-   rm -f ~/.config/opencode/oh-my-opencode-slim.json
-   rm -f .opencode/oh-my-opencode-slim.json
+   rm -f ~/.config/opencode/oh-my-opencode-mal.json
+   rm -f .opencode/oh-my-opencode-mal.json
    ```
 
 ---
