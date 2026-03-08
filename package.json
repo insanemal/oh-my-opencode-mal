@@ -1,6 +1,6 @@
 {
   "name": "oh-my-opencode-mal",
-  "version": "0.6.0",
+  "version": "0.7.1",
   "description": "Lightweight agent orchestration plugin for OpenCode - a slimmed-down fork of oh-my-opencode",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
