@@ -13,7 +13,7 @@ describe('prompt and hook alignment', () => {
       'Need to find files, patterns, or map the codebase → @explorer',
     );
     expect(agent.config.prompt).toContain(
-      'Clear implementation work with a known approach → @fixer',
+      'Routine implementation, known fixes, refactors, and multi-file code edits with a clear outcome → @fixer',
     );
     expect(agent.config.prompt).toContain(
       '1. Assess — parse the request and identify unknowns.',
@@ -30,6 +30,9 @@ describe('prompt and hook alignment', () => {
     expect(agent.config.prompt).toContain(
       'Never call @oracle in parallel with @explorer when Oracle depends on repository discovery; wait for Explorer results first',
     );
+    expect(agent.config.prompt).toContain(
+      '@explorer is for discovery only: never ask it for implementation plans, change recommendations, or code edits',
+    );
   });
 
   test('phase reminder uses aligned workflow text', async () => {
@@ -44,7 +47,7 @@ describe('prompt and hook alignment', () => {
     await hook['experimental.chat.messages.transform']({}, { messages });
 
     expect(messages[0].parts[0].text).toContain(
-      '<reminder>Assess → Route → Execute & Verify. Parallelize only independent tasks. If strategy depends on repository discovery, use @explorer first and wait before calling @oracle. Specialists: @explorer @librarian @oracle @designer @fixer.</reminder>',
+      '<reminder>Assess → Route → Execute & Verify. Parallelize only independent tasks. If strategy depends on repository discovery, use @explorer first and wait before calling @oracle. Use @explorer for discovery only, not recommendations. For implementation-heavy tasks with clear scope, prefer @fixer over doing the coding yourself unless the change is tiny. Specialists: @explorer @librarian @oracle @designer @fixer.</reminder>',
     );
   });
 
@@ -59,7 +62,7 @@ describe('prompt and hook alignment', () => {
     await hook['tool.execute.after']({ tool: 'read' }, output);
 
     expect(output.output).toContain(
-      'Reminder: if you need more discovery, use @explorer. If the next step is clear implementation, use @fixer.',
+      'Reminder: if you need more discovery, use @explorer for discovery only. If the next step is clear implementation, prefer @fixer unless the change is tiny.',
     );
   });
 });

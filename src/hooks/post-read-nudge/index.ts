@@ -4,7 +4,7 @@
  */
 
 const NUDGE =
-  '\n\n---\nReminder: if you need more discovery, use @explorer. If the next step is clear implementation, use @fixer.';
+  '\n\n---\nReminder: if you need more discovery, use @explorer for discovery only. If the next step is clear implementation, prefer @fixer unless the change is tiny.';
 
 interface ToolExecuteAfterInput {
   tool: string;

@@ -8,7 +8,7 @@
  *
  * Uses experimental.chat.messages.transform so it doesn't show in UI.
  */
-const PHASE_REMINDER = `<reminder>Assess → Route → Execute & Verify. Parallelize only independent tasks. If strategy depends on repository discovery, use @explorer first and wait before calling @oracle. Specialists: @explorer @librarian @oracle @designer @fixer.</reminder>`;
+const PHASE_REMINDER = `<reminder>Assess → Route → Execute & Verify. Parallelize only independent tasks. If strategy depends on repository discovery, use @explorer first and wait before calling @oracle. Use @explorer for discovery only, not recommendations. For implementation-heavy tasks with clear scope, prefer @fixer over doing the coding yourself unless the change is tiny. Specialists: @explorer @librarian @oracle @designer @fixer.</reminder>`;
 
 interface MessageInfo {
   role: string;
