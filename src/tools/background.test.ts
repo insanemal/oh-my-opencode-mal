@@ -443,6 +443,32 @@ describe('Background Tools', () => {
   });
 
   describe('sendPrompt', () => {
+    test('enables delegation tools for oracle child sessions', async () => {
+      await sendPrompt(ctx, 's1', 'prompt', 'oracle');
+
+      expect(ctx.client.session.prompt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({
+            agent: 'oracle',
+            tools: { background_task: true, task: true },
+          }),
+        }),
+      );
+    });
+
+    test('keeps delegation tools disabled for non-oracle child sessions', async () => {
+      await sendPrompt(ctx, 's1', 'prompt', 'explorer');
+
+      expect(ctx.client.session.prompt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({
+            agent: 'explorer',
+            tools: { background_task: false, task: false },
+          }),
+        }),
+      );
+    });
+
     test('sends prompt with variant resolution', async () => {
       const pluginConfig = {
         agents: {
@@ -460,6 +486,7 @@ describe('Background Tools', () => {
         expect.objectContaining({
           body: expect.objectContaining({
             agent: 'agent',
+            tools: { background_task: false, task: false },
             variant: 'pro',
           }),
         }),

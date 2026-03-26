@@ -176,6 +176,16 @@ describe('createAgents', () => {
     const agents = createAgents();
     expect(agents.length).toBe(6);
   });
+
+  test('oracle prompt allows explorer delegation while staying advisory', () => {
+    const agents = createAgents();
+    const oracle = agents.find((a) => a.name === 'oracle');
+
+    expect(oracle?.config.prompt).toContain(
+      'delegate repository discovery or code search to Explorer',
+    );
+    expect(oracle?.config.prompt).toContain('read-only and advisory');
+  });
 });
 
 describe('getAgentConfigs', () => {

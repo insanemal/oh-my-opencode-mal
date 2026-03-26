@@ -4,6 +4,7 @@ import {
   tool,
 } from '@opencode-ai/plugin';
 import type { BackgroundTaskManager } from '../background';
+import { getDelegationToolConfig } from '../background/delegation-tools';
 import type { PluginConfig } from '../config';
 import {
   DEFAULT_TIMEOUT_MS,
@@ -380,10 +381,11 @@ export async function sendPrompt(
     variant?: string;
   };
 
-  // Build prompt body with recursive tools disabled to prevent infinite loops
+  // Build prompt body with recursive delegation disabled for all subagents
+  // except Oracle, which may delegate read-only discovery/search work.
   const baseBody: PromptBody = {
     agent,
-    tools: { background_task: false, task: false },
+    tools: getDelegationToolConfig(agent),
     parts: [{ type: 'text' as const, text: prompt }],
   };
   const promptBody = applyAgentVariant(resolvedVariant, baseBody);

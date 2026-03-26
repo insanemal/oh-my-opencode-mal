@@ -4,7 +4,7 @@
  */
 
 const NUDGE =
-  '\n\n---\nReminder to follow the workflow instructions, consider delegation to specialist(s)';
+  '\n\n---\nReminder: if you need more discovery, use @explorer. If the next step is clear implementation, use @fixer.';
 
 interface ToolExecuteAfterInput {
   tool: string;

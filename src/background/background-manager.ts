@@ -18,6 +18,7 @@ import { POLL_INTERVAL_BACKGROUND_MS, POLL_INTERVAL_SLOW_MS } from '../config';
 import type { TmuxConfig } from '../config/schema';
 import { applyAgentVariant, resolveAgentVariant } from '../utils';
 import { log } from '../utils/logger';
+import { getDelegationToolConfig } from './delegation-tools';
 
 type PromptBody = {
   messageID?: string;
@@ -136,7 +137,7 @@ export class BackgroundTaskManager {
     const resolvedVariant = resolveAgentVariant(this.config, opts.agent);
     const promptBody = applyAgentVariant(resolvedVariant, {
       agent: opts.agent,
-      tools: { background_task: false, task: false },
+      tools: getDelegationToolConfig(opts.agent),
       parts: [{ type: 'text' as const, text: opts.prompt }],
     } as PromptBody) as unknown as PromptBody;
 

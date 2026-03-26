@@ -102,6 +102,48 @@ describe('BackgroundTaskManager', () => {
 
       expect(ctx.client.session.prompt).toHaveBeenCalled();
     });
+
+    test('enables delegation tools for oracle background sessions', async () => {
+      const ctx = createMockContext();
+      const manager = new BackgroundTaskManager(ctx);
+
+      await manager.launch({
+        agent: 'oracle',
+        prompt: 'analyze architecture',
+        description: 'Oracle analysis',
+        parentSessionId: 'parent-123',
+      });
+
+      expect(ctx.client.session.prompt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({
+            agent: 'oracle',
+            tools: { background_task: true, task: true },
+          }),
+        }),
+      );
+    });
+
+    test('keeps delegation tools disabled for non-oracle background sessions', async () => {
+      const ctx = createMockContext();
+      const manager = new BackgroundTaskManager(ctx);
+
+      await manager.launch({
+        agent: 'explorer',
+        prompt: 'search repo',
+        description: 'Explorer search',
+        parentSessionId: 'parent-123',
+      });
+
+      expect(ctx.client.session.prompt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({
+            agent: 'explorer',
+            tools: { background_task: false, task: false },
+          }),
+        }),
+      );
+    });
   });
 
   describe('getResult', () => {
